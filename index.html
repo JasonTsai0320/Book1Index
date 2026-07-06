@@ -173,6 +173,13 @@
   .article-main .oneliner{
     font-size:12.5px;color:var(--ink-soft);margin-top:3px;
   }
+  
+  /* 修正右側容器，使其在響應式斷點下能被整組隱藏，避免破壞 Grid 排版 */
+  .article-row-right{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
   .article-meta{
     font-size:11px;color:var(--ink-faint);
     text-align:right;white-space:nowrap;
@@ -210,10 +217,15 @@
     text-align:center;padding:60px 0;color:var(--ink-soft);font-size:13px;
   }
 
+  /* 行動端斷點樣式優化 */
   @media (max-width:560px){
-    .article-row{grid-template-columns:36px 1fr;}
-    .article-meta{display:none;}
-    .cover-swatch,.cover-img{display:none;}
+    .article-row{
+      grid-template-columns:36px 1fr;
+    }
+    /* 直接整組隱藏右側容器，解決第三個子元素擠到下方的 Grid 錯位問題 */
+    .article-row-right{
+      display:none !important;
+    }
   }
 </style>
 </head>
@@ -256,10 +268,38 @@ const UNSORTED_KEY = '尚未分類';
 const UNSORTED_META = { desc:'尚未歸類的文章，之後會補上系列', color:'#8A8478', order:99 };
 
 // ================================================================
+// 工具：安全轉義 HTML（防止試算表內容造成的 XSS 攻擊）
+// ================================================================
+function escapeHTML(str) {
+  if (!str) return '';
+  return str.replace(/[&<>'"]/g, tag => {
+    const chars = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    };
+    return chars[tag] || tag;
+  });
+}
+
+// 容錯率高的日期解析器（避免字串 localeCompare 造成的排序錯亂）
+function parseDateValue(dateStr) {
+  if (!dateStr) return 0;
+  // 將常見的斜線或減號格式統一，並轉換為毫秒時間戳
+  const cleanStr = dateStr.replace(/-/g, '/');
+  const timestamp = Date.parse(cleanStr);
+  return isNaN(timestamp) ? 0 : timestamp;
+}
+
+// ================================================================
 // 工具：gviz/tq CSV 抓取與解析
 // ================================================================
 function gvizUrl(sheetName){
-  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+  // 動態加入時間戳記 (Cache Buster)，解決瀏覽器或 CDN 過度快取試算表資料的問題
+  const cacheBuster = new Date().getTime();
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&t=${cacheBuster}`;
 }
 
 // 簡易 CSV 解析（支援雙引號包欄位、欄位內逗號／換行）
@@ -321,26 +361,30 @@ async function init(){
   let seriesMeta = {};
 
   try{
-    const { records } = await fetchSheet(SHEET_ARTICLES);
-    articleRows = records;
+    // 優化：使用 Promise.all 同時載入「文章」與「系列說明」，提升近一倍的非同步載入效能
+    const [articlesRes, seriesRes] = await Promise.all([
+      fetchSheet(SHEET_ARTICLES),
+      fetchSheet(SHEET_SERIES).catch(() => ({ records: [] })) // 容忍系列說明不存在，拋出錯誤時降級使用 fallback
+    ]);
+
+    articleRows = articlesRes.records;
+
+    if (seriesRes.records && seriesRes.records.length > 0) {
+      seriesRes.records.forEach(r => {
+        const name = pick(r, ['系列名稱']);
+        if(!name) return;
+        seriesMeta[name] = {
+          desc: pick(r, ['系列說明']) || (SERIES_FALLBACK[name]?.desc || ''),
+          color: pick(r, ['顏色']) || (SERIES_FALLBACK[name]?.color || '#8A8478'),
+          order: Number(pick(r, ['排序'])) || (SERIES_FALLBACK[name]?.order || 50),
+        };
+      });
+    }
   } catch(e){
-    app.innerHTML = `<div class="state-msg">文章資料讀取失敗，請確認試算表分享權限（知道連結的人可以檢視）。<br>${e.message}</div>`;
+    app.innerHTML = `<div class="state-msg">文章資料讀取失敗，請確認試算表分享權限（知道連結的人可以檢視）。<br>${escapeHTML(e.message)}</div>`;
     return;
   }
 
-  // 系列說明（尚未建立時使用內建 fallback）
-  try{
-    const { records } = await fetchSheet(SHEET_SERIES);
-    records.forEach(r => {
-      const name = pick(r, ['系列名稱']);
-      if(!name) return;
-      seriesMeta[name] = {
-        desc: pick(r, ['系列說明']) || (SERIES_FALLBACK[name]?.desc || ''),
-        color: pick(r, ['顏色']) || (SERIES_FALLBACK[name]?.color || '#8A8478'),
-        order: Number(pick(r, ['排序'])) || (SERIES_FALLBACK[name]?.order || 50),
-      };
-    });
-  } catch(e){ /* 分頁尚未建立，忽略，使用 fallback */ }
   if(Object.keys(seriesMeta).length === 0) seriesMeta = { ...SERIES_FALLBACK };
 
   // 整理文章資料（欄名容忍尚未定案 / 尚未新增的欄位）
@@ -419,10 +463,9 @@ function articleRowEl(article, color){
     main.appendChild(p);
   }
 
+  // 為右側容器補上專屬 class「article-row-right」，配合 CSS 斷點完美隱藏
   const right = document.createElement('div');
-  right.style.display = 'flex';
-  right.style.alignItems = 'center';
-  right.style.gap = '10px';
+  right.className = 'article-row-right';
   const meta = document.createElement('div');
   meta.className = 'article-meta';
   meta.textContent = article.pubDate || '';
@@ -450,7 +493,8 @@ function render(app, articles, seriesMeta){
       const card = document.createElement(a.url ? 'a':'div');
       card.className = 'pick-card';
       if(a.url){ card.href = a.url; card.target='_blank'; card.rel='noopener'; }
-      card.innerHTML = `<span class="num" style="color:${color}">${a.id}</span><h3>${a.title}</h3><p>${a.oneLiner||''}</p>`;
+      // 使用 escapeHTML 進行防護性轉義，防範潛在 XSS 攻擊
+      card.innerHTML = `<span class="num" style="color:${color}">${escapeHTML(a.id)}</span><h3>${escapeHTML(a.title)}</h3><p>${escapeHTML(a.oneLiner||'')}</p>`;
       grid.appendChild(card);
     });
     section.appendChild(grid);
@@ -479,10 +523,10 @@ function render(app, articles, seriesMeta){
     block.className = 'series-block';
     block.innerHTML = `
       <div class="series-head">
-        <span class="dot" style="background:${meta.color}"></span>
-        <h2>${key}</h2>
+        <span class="dot" style="background:${escapeHTML(meta.color)}"></span>
+        <h2>${escapeHTML(key)}</h2>
       </div>
-      <div class="series-desc">${meta.desc || ''}${key===UNSORTED_KEY ? '' : ` · ${list.length} 篇`}</div>
+      <div class="series-desc">${escapeHTML(meta.desc || '')}${key===UNSORTED_KEY ? '' : ` · ${list.length} 篇`}</div>
     `;
     list.forEach(a => block.appendChild(articleRowEl(a, meta.color)));
     seriesSection.appendChild(block);
@@ -490,7 +534,8 @@ function render(app, articles, seriesMeta){
   app.appendChild(seriesSection);
 
   // ---------- 最新文章（最多 5 篇，僅供告知）----------
-  const dated = articles.filter(a => a.pubDate).sort((a,b) => b.pubDate.localeCompare(a.pubDate));
+  // 優化：基於時間戳記（Date.parse）正確排序，排除因字串長短或多樣化分隔符造成的 localeCompare 排序錯亂
+  const dated = articles.filter(a => a.pubDate).sort((a,b) => parseDateValue(b.pubDate) - parseDateValue(a.pubDate));
   if(dated.length){
     const latest = dated.slice(0, MAX_LATEST);
     const section = document.createElement('section');
@@ -501,7 +546,7 @@ function render(app, articles, seriesMeta){
       const row = document.createElement(a.url ? 'a':'div');
       row.className = 'latest-row';
       if(a.url){ row.href=a.url; row.target='_blank'; row.rel='noopener'; }
-      row.innerHTML = `<span class="t">${a.title}</span><span class="d">${a.pubDate}</span>`;
+      row.innerHTML = `<span class="t">${escapeHTML(a.title)}</span><span class="d">${escapeHTML(a.pubDate)}</span>`;
       list.appendChild(row);
     });
     section.appendChild(list);
