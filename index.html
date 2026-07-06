@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小樹108．思考 × 實踐 × 職涯</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F2EFE6;
+    --paper-deep:#EAE5D8;
+    --ink:#242219;
+    --ink-soft:#6E675C;
+    --ink-faint:#A39C8E;
+    --rule:rgba(36,34,25,0.14);
+    --rule-soft:rgba(36,34,25,0.08);
+    --accent:#7A3B4E;
+    --accent-soft:rgba(122,59,78,0.10);
+    --c-thought:#3B5BA5;
+    --c-thought-soft:rgba(59,91,165,0.10);
+    --c-practice:#3F6B4F;
+    --c-practice-soft:rgba(63,107,79,0.10);
+    --c-career:#7A3B4E;
+    --c-career-soft:rgba(122,59,78,0.10);
+    --c-unsorted:#8A8478;
+    --c-unsorted-soft:rgba(138,132,120,0.10);
+    --radius:3px;
+    --serif:'Noto Serif TC', serif;
+    --sans:'Noto Sans TC', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 24px;}
+
+  /* ---------- Header ---------- */
+  header.brand{
+    padding:72px 0 40px;
+    text-align:center;
+    position:relative;
+  }
+  .stamp{
+    width:56px;height:56px;
+    margin:0 auto 28px;
+    border:1.5px solid var(--accent);
+    border-radius:4px;
+    display:flex;align-items:center;justify-content:center;
+    transform:rotate(-4deg);
+    color:var(--accent);
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:15px;
+    letter-spacing:0.5px;
+  }
+  .brand h1{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:clamp(34px,6vw,48px);
+    margin:0 0 14px;
+    letter-spacing:2px;
+  }
+  .brand .tagline{
+    font-size:13px;
+    letter-spacing:6px;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+  }
+  .brand .rule{
+    width:64px;height:1px;background:var(--rule);
+    margin:28px auto 0;
+  }
+
+  section{padding:48px 0;}
+  section + section{border-top:1px solid var(--rule-soft);}
+
+  .section-head{
+    display:flex;align-items:baseline;justify-content:space-between;
+    margin-bottom:24px;
+  }
+  .section-head .eyebrow{
+    font-family:var(--serif);
+    font-size:12px;
+    letter-spacing:3px;
+    color:var(--ink-faint);
+    text-transform:uppercase;
+  }
+  .section-head .count{
+    font-size:12px;color:var(--ink-faint);
+  }
+
+  /* ---------- 推薦閱讀 ---------- */
+  .picks{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(220px,1fr));
+    gap:20px;
+  }
+  .pick-card{
+    background:var(--paper-deep);
+    border:1px solid var(--rule);
+    border-radius:var(--radius);
+    padding:18px;
+    display:flex;flex-direction:column;gap:8px;
+    text-decoration:none;
+    transition:transform 0.18s ease, border-color 0.18s ease;
+  }
+  .pick-card:hover{transform:translateY(-2px);border-color:var(--ink-faint);}
+  .pick-card .num{font-size:11px;color:var(--ink-faint);letter-spacing:1px;}
+  .pick-card h3{
+    font-family:var(--serif);font-weight:600;font-size:16px;margin:0;
+    color:var(--ink);
+  }
+  .pick-card p{font-size:12.5px;color:var(--ink-soft);margin:0;}
+
+  /* ---------- 系列（思考/實踐/職涯） ---------- */
+  .series-block{margin-bottom:44px;}
+  .series-block:last-child{margin-bottom:0;}
+  .series-head{
+    display:flex;align-items:center;gap:10px;margin-bottom:4px;
+  }
+  .dot{width:9px;height:9px;border-radius:50%;flex:none;}
+  .series-head h2{
+    font-family:var(--serif);font-weight:600;font-size:20px;margin:0;
+  }
+  .series-desc{
+    font-size:12.5px;color:var(--ink-soft);
+    margin:2px 0 18px 19px;
+  }
+
+  .article-row{
+    display:grid;
+    grid-template-columns:44px 1fr auto;
+    gap:16px;
+    align-items:center;
+    padding:12px 0;
+    border-bottom:1px solid var(--rule-soft);
+    text-decoration:none;
+    color:inherit;
+  }
+  .article-row:last-child{border-bottom:none;}
+  .callnum{
+    font-family:var(--serif);
+    font-size:12px;
+    color:var(--ink-faint);
+    border:1px solid var(--rule);
+    border-radius:2px;
+    text-align:center;
+    padding:4px 0;
+  }
+  .article-main .title-line{
+    display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+  }
+  .article-main h3{
+    font-family:var(--serif);font-weight:600;font-size:15.5px;margin:0;
+  }
+  .tag{
+    font-size:10.5px;
+    padding:1px 7px;
+    border-radius:20px;
+    color:var(--ink-soft);
+    background:var(--rule-soft);
+    letter-spacing:0.5px;
+  }
+  .article-main .oneliner{
+    font-size:12.5px;color:var(--ink-soft);margin-top:3px;
+  }
+  .article-meta{
+    font-size:11px;color:var(--ink-faint);
+    text-align:right;white-space:nowrap;
+  }
+  .cover-swatch{
+    width:44px;height:28px;border-radius:2px;flex:none;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--serif);font-size:10px;color:rgba(255,255,255,0.85);
+  }
+  .cover-img{width:44px;height:28px;object-fit:cover;border-radius:2px;flex:none;}
+
+  /* ---------- 最新文章 ---------- */
+  .latest-list{font-size:13px;}
+  .latest-row{
+    display:flex;justify-content:space-between;gap:12px;
+    padding:8px 0;border-bottom:1px dashed var(--rule-soft);
+    text-decoration:none;color:var(--ink-soft);
+  }
+  .latest-row:last-child{border-bottom:none;}
+  .latest-row .t{color:var(--ink);}
+  .latest-row .d{flex:none;color:var(--ink-faint);font-size:11px;}
+
+  /* ---------- 全部文章 ---------- */
+  .all-list .article-row{grid-template-columns:44px 1fr auto;}
+  .unsorted-note{
+    font-size:11.5px;color:var(--ink-faint);margin-top:10px;
+  }
+
+  footer{
+    padding:40px 0 60px;text-align:center;
+    font-size:11.5px;color:var(--ink-faint);
+  }
+
+  .state-msg{
+    text-align:center;padding:60px 0;color:var(--ink-soft);font-size:13px;
+  }
+
+  @media (max-width:560px){
+    .article-row{grid-template-columns:36px 1fr;}
+    .article-meta{display:none;}
+    .cover-swatch,.cover-img{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<header class="brand">
+  <div class="wrap">
+    <div class="stamp">108</div>
+    <h1>小樹108</h1>
+    <div class="tagline">思考 × 實踐 × 職涯</div>
+    <div class="rule"></div>
+  </div>
+</header>
+
+<main class="wrap" id="app">
+  <div class="state-msg" id="loading">正在整理書架…</div>
+</main>
+
+<footer class="wrap">
+  <div>小樹108．一套持續連載的知識體系　每 108 篇集結成一冊</div>
+</footer>
+
+<script>
+// ================================================================
+// 設定區
+// ================================================================
+const SHEET_ID = '1MKcQipyOEEXFbLwDXd7Vo0NkJP-k7bOnCwshnHAbgug';
+const SHEET_ARTICLES = '文章';
+const SHEET_SERIES   = '系列說明';
+const SHEET_THEME    = 'theme';
+const MAX_LATEST = 5;
+
+// 三大分類 fallback（系列說明分頁尚未建立前使用；分頁建立後會被覆蓋）
+const SERIES_FALLBACK = {
+  '思考': { desc:'理解世界的方法', color:'#3B5BA5', order:1 },
+  '實踐': { desc:'把想法變成成果', color:'#3F6B4F', order:2 },
+  '職涯': { desc:'成為想成為的人', color:'#7A3B4E', order:3 },
+};
+const UNSORTED_KEY = '尚未分類';
+const UNSORTED_META = { desc:'尚未歸類的文章，之後會補上系列', color:'#8A8478', order:99 };
+
+// ================================================================
+// 工具：gviz/tq CSV 抓取與解析
+// ================================================================
+function gvizUrl(sheetName){
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+}
+
+// 簡易 CSV 解析（支援雙引號包欄位、欄位內逗號／換行）
+function parseCSV(text){
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for(let i=0;i<text.length;i++){
+    const c = text[i];
+    if(inQuotes){
+      if(c === '"'){
+        if(text[i+1] === '"'){ field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
+    } else {
+      if(c === '"') inQuotes = true;
+      else if(c === ','){ row.push(field); field=''; }
+      else if(c === '\n'){ row.push(field); rows.push(row); row=[]; field=''; }
+      else if(c === '\r'){ /* skip */ }
+      else field += c;
+    }
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  return rows.filter(r => r.some(v => v !== ''));
+}
+
+function cleanHeader(h){
+  return (h || '').trim().split(/[\s←]+/)[0];
+}
+
+async function fetchSheet(sheetName){
+  const res = await fetch(gvizUrl(sheetName));
+  if(!res.ok) throw new Error('無法讀取分頁：' + sheetName);
+  const text = await res.text();
+  const rows = parseCSV(text);
+  if(rows.length === 0) return { headers:[], records:[] };
+  const headers = rows[0].map(cleanHeader);
+  const records = rows.slice(1).map(r => {
+    const obj = {};
+    headers.forEach((h,idx) => { obj[h] = (r[idx] || '').trim(); });
+    return obj;
+  });
+  return { headers, records };
+}
+
+// 依多個候選欄名取值，容忍欄位尚未建立或改名
+function pick(record, candidates){
+  for(const name of candidates){
+    if(record.hasOwnProperty(name) && record[name] !== '') return record[name];
+  }
+  return '';
+}
+
+// ================================================================
+// 主流程
+// ================================================================
+async function init(){
+  const app = document.getElementById('app');
+  let articleRows = [];
+  let seriesMeta = {};
+
+  try{
+    const { records } = await fetchSheet(SHEET_ARTICLES);
+    articleRows = records;
+  } catch(e){
+    app.innerHTML = `<div class="state-msg">文章資料讀取失敗，請確認試算表分享權限（知道連結的人可以檢視）。<br>${e.message}</div>`;
+    return;
+  }
+
+  // 系列說明（尚未建立時使用內建 fallback）
+  try{
+    const { records } = await fetchSheet(SHEET_SERIES);
+    records.forEach(r => {
+      const name = pick(r, ['系列名稱']);
+      if(!name) return;
+      seriesMeta[name] = {
+        desc: pick(r, ['系列說明']) || (SERIES_FALLBACK[name]?.desc || ''),
+        color: pick(r, ['顏色']) || (SERIES_FALLBACK[name]?.color || '#8A8478'),
+        order: Number(pick(r, ['排序'])) || (SERIES_FALLBACK[name]?.order || 50),
+      };
+    });
+  } catch(e){ /* 分頁尚未建立，忽略，使用 fallback */ }
+  if(Object.keys(seriesMeta).length === 0) seriesMeta = { ...SERIES_FALLBACK };
+
+  // 整理文章資料（欄名容忍尚未定案 / 尚未新增的欄位）
+  const articles = articleRows.map(r => {
+    const id = pick(r, ['編號']);
+    const mainCategory = pick(r, ['思考x實踐x職涯','思考×實踐×職涯','類別']);
+    const subSeries = pick(r, ['系列','三大面向系列連載']);
+    const cover = pick(r, ['封面']);
+    const title = pick(r, ['文章標題']);
+    const url = pick(r, ['網址']);
+    const oneLiner = pick(r, ['一句話定位']);
+    const pubDate = pick(r, ['發佈日']);
+    const orderRaw = pick(r, ['排序']);
+    const displayRaw = pick(r, ['顯示']);
+    const featuredRaw = pick(r, ['推薦閱讀']);
+    const featuredOrderRaw = pick(r, ['推薦順序']);
+    const subTagsRaw = pick(r, ['副標籤']);
+
+    return {
+      id, title, url, oneLiner, pubDate, cover,
+      category: SERIES_FALLBACK[mainCategory] ? mainCategory : (mainCategory || ''),
+      subSeries,
+      order: orderRaw ? Number(orderRaw) : (Number(id) || 9999),
+      // 顯示欄尚未建立時，預設全部顯示；欄位存在時才依 ✓ 判斷
+      display: displayRaw === '' ? true : displayRaw === '✓',
+      featured: featuredRaw === '✓',
+      featuredOrder: featuredOrderRaw ? Number(featuredOrderRaw) : 9999,
+      subTags: subTagsRaw ? subTagsRaw.split(/[,，]/).map(s=>s.trim()).filter(Boolean) : [],
+    };
+  }).filter(a => a.display && a.title);
+
+  render(app, articles, seriesMeta);
+}
+
+function coverEl(article, color){
+  if(article.cover && /^https?:\/\//.test(article.cover)){
+    const img = document.createElement('img');
+    img.className = 'cover-img';
+    img.src = article.cover;
+    img.alt = '';
+    return img;
+  }
+  const div = document.createElement('div');
+  div.className = 'cover-swatch';
+  div.style.background = color;
+  if(article.cover) div.textContent = article.cover; // emoji
+  return div;
+}
+
+function articleRowEl(article, color){
+  const el = document.createElement(article.url ? 'a' : 'div');
+  el.className = 'article-row';
+  if(article.url){ el.href = article.url; el.target = '_blank'; el.rel='noopener'; }
+
+  const num = document.createElement('div');
+  num.className = 'callnum';
+  num.textContent = article.id || '—';
+
+  const main = document.createElement('div');
+  main.className = 'article-main';
+  const titleLine = document.createElement('div');
+  titleLine.className = 'title-line';
+  const h3 = document.createElement('h3');
+  h3.textContent = article.title;
+  titleLine.appendChild(h3);
+  article.subTags.forEach(t => {
+    const tag = document.createElement('span');
+    tag.className = 'tag'; tag.textContent = t;
+    titleLine.appendChild(tag);
+  });
+  main.appendChild(titleLine);
+  if(article.oneLiner){
+    const p = document.createElement('div');
+    p.className = 'oneliner';
+    p.textContent = article.oneLiner;
+    main.appendChild(p);
+  }
+
+  const right = document.createElement('div');
+  right.style.display = 'flex';
+  right.style.alignItems = 'center';
+  right.style.gap = '10px';
+  const meta = document.createElement('div');
+  meta.className = 'article-meta';
+  meta.textContent = article.pubDate || '';
+  right.appendChild(coverEl(article, color));
+  right.appendChild(meta);
+
+  el.appendChild(num);
+  el.appendChild(main);
+  el.appendChild(right);
+  return el;
+}
+
+function render(app, articles, seriesMeta){
+  app.innerHTML = '';
+
+  // ---------- 推薦閱讀 ----------
+  const picks = articles.filter(a => a.featured).sort((a,b)=>a.featuredOrder-b.featuredOrder);
+  if(picks.length){
+    const section = document.createElement('section');
+    section.innerHTML = `<div class="section-head"><span class="eyebrow">推薦閱讀</span><span class="count">${picks.length} 篇</span></div>`;
+    const grid = document.createElement('div');
+    grid.className = 'picks';
+    picks.forEach(a => {
+      const color = seriesMeta[a.category]?.color || UNSORTED_META.color;
+      const card = document.createElement(a.url ? 'a':'div');
+      card.className = 'pick-card';
+      if(a.url){ card.href = a.url; card.target='_blank'; card.rel='noopener'; }
+      card.innerHTML = `<span class="num" style="color:${color}">${a.id}</span><h3>${a.title}</h3><p>${a.oneLiner||''}</p>`;
+      grid.appendChild(card);
+    });
+    section.appendChild(grid);
+    app.appendChild(section);
+  }
+
+  // ---------- 系列（思考/實踐/職涯 + 尚未分類）----------
+  const grouped = {};
+  articles.forEach(a => {
+    const key = a.category || UNSORTED_KEY;
+    if(!grouped[key]) grouped[key] = [];
+    grouped[key].push(a);
+  });
+  const seriesOrder = Object.keys(grouped).sort((a,b)=>{
+    const oa = a===UNSORTED_KEY ? UNSORTED_META.order : (seriesMeta[a]?.order ?? 50);
+    const ob = b===UNSORTED_KEY ? UNSORTED_META.order : (seriesMeta[b]?.order ?? 50);
+    return oa-ob;
+  });
+
+  const seriesSection = document.createElement('section');
+  seriesSection.innerHTML = `<div class="section-head"><span class="eyebrow">系列</span></div>`;
+  seriesOrder.forEach(key => {
+    const meta = key===UNSORTED_KEY ? UNSORTED_META : (seriesMeta[key] || UNSORTED_META);
+    const list = grouped[key].slice().sort((a,b)=>a.order-b.order);
+    const block = document.createElement('div');
+    block.className = 'series-block';
+    block.innerHTML = `
+      <div class="series-head">
+        <span class="dot" style="background:${meta.color}"></span>
+        <h2>${key}</h2>
+      </div>
+      <div class="series-desc">${meta.desc || ''}${key===UNSORTED_KEY ? '' : ` · ${list.length} 篇`}</div>
+    `;
+    list.forEach(a => block.appendChild(articleRowEl(a, meta.color)));
+    seriesSection.appendChild(block);
+  });
+  app.appendChild(seriesSection);
+
+  // ---------- 最新文章（最多 5 篇，僅供告知）----------
+  const dated = articles.filter(a => a.pubDate).sort((a,b) => b.pubDate.localeCompare(a.pubDate));
+  if(dated.length){
+    const latest = dated.slice(0, MAX_LATEST);
+    const section = document.createElement('section');
+    section.innerHTML = `<div class="section-head"><span class="eyebrow">最新文章</span></div>`;
+    const list = document.createElement('div');
+    list.className = 'latest-list';
+    latest.forEach(a => {
+      const row = document.createElement(a.url ? 'a':'div');
+      row.className = 'latest-row';
+      if(a.url){ row.href=a.url; row.target='_blank'; row.rel='noopener'; }
+      row.innerHTML = `<span class="t">${a.title}</span><span class="d">${a.pubDate}</span>`;
+      list.appendChild(row);
+    });
+    section.appendChild(list);
+    app.appendChild(section);
+  }
+
+  // ---------- 全部文章（依發佈日排序，保底入口）----------
+  const allSection = document.createElement('section');
+  allSection.innerHTML = `<div class="section-head"><span class="eyebrow">全部文章</span><span class="count">${articles.length} 篇</span></div>`;
+  const allList = document.createElement('div');
+  allList.className = 'all-list';
+  dated.concat(articles.filter(a => !a.pubDate)).forEach(a => {
+    const color = seriesMeta[a.category]?.color || UNSORTED_META.color;
+    allList.appendChild(articleRowEl(a, color));
+  });
+  allSection.appendChild(allList);
+  app.appendChild(allSection);
+}
+
+init();
+</script>
+</body>
+</html>
