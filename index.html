@@ -11,6 +11,7 @@
   :root{
     --paper:#F2EFE6;
     --paper-deep:#EAE5D8;
+    --paper-darker:#DFD9C8; /* 新增 hover 使用的深紙色 */
     --ink:#242219;
     --ink-soft:#6E675C;
     --ink-faint:#A39C8E;
@@ -111,15 +112,15 @@
     padding:18px;
     display:flex;flex-direction:column;gap:8px;
     text-decoration:none;
-    transition:transform 0.18s ease, border-color 0.18s ease;
+    transition:transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
   }
-  .pick-card:hover{transform:translateY(-2px);border-color:var(--ink-faint);}
-  .pick-card .num{font-size:11px;color:var(--ink-faint);letter-spacing:1px;}
-  .pick-card h3{
-    font-family:var(--serif);font-weight:600;font-size:16px;margin:0;
-    color:var(--ink);
+  /* 當 pick-card 包含超連結時的 hover 回饋 */
+  a.pick-card:hover {
+    transform:translateY(-2px);
+    border-color:var(--ink-soft);
+    background-color: var(--paper-darker);
+    cursor: pointer;
   }
-  .pick-card p{font-size:12.5px;color:var(--ink-soft);margin:0;}
 
   /* ---------- 系列（思考/實踐/職涯） ---------- */
   .series-block{margin-bottom:44px;}
@@ -136,17 +137,28 @@
     margin:2px 0 18px 19px;
   }
 
+  /* 文章列基礎樣式 */
   .article-row{
     display:grid;
     grid-template-columns:44px 1fr auto;
     gap:16px;
     align-items:center;
-    padding:12px 0;
+    padding:14px 10px; /* 稍微增加水平內距，讓 hover 背景亮起時更有呼吸感 */
+    margin: 0 -10px;    /* 透過負邊距抵消內距，維持原本的排版對齊線 */
     border-bottom:1px solid var(--rule-soft);
     text-decoration:none;
     color:inherit;
+    border-radius: var(--radius);
+    transition: background-color 0.18s ease, padding-left 0.18s ease;
   }
   .article-row:last-child{border-bottom:none;}
+  
+  /* 優化：當文章為有效連結時，滑鼠滑入時的優雅反饋 */
+  a.article-row:hover {
+    background-color: var(--paper-deep);
+    cursor: pointer;
+  }
+  
   .callnum{
     font-family:var(--serif);
     font-size:12px;
@@ -155,6 +167,7 @@
     border-radius:2px;
     text-align:center;
     padding:4px 0;
+    background: transparent;
   }
   .article-main .title-line{
     display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
@@ -174,7 +187,7 @@
     font-size:12.5px;color:var(--ink-soft);margin-top:3px;
   }
   
-  /* 修正右側容器，使其在響應式斷點下能被整組隱藏，避免破壞 Grid 排版 */
+  /* 右側容器 */
   .article-row-right{
     display:flex;
     align-items:center;
@@ -195,12 +208,21 @@
   .latest-list{font-size:13px;}
   .latest-row{
     display:flex;justify-content:space-between;gap:12px;
-    padding:8px 0;border-bottom:1px dashed var(--rule-soft);
+    padding:8px 8px; /* 增加些微內置寬度以便 hover */
+    margin: 0 -8px;
+    border-bottom:1px dashed var(--rule-soft);
     text-decoration:none;color:var(--ink-soft);
+    border-radius: var(--radius);
+    transition: background-color 0.18s ease;
   }
   .latest-row:last-child{border-bottom:none;}
   .latest-row .t{color:var(--ink);}
   .latest-row .d{flex:none;color:var(--ink-faint);font-size:11px;}
+  
+  a.latest-row:hover {
+    background-color: var(--paper-deep);
+    cursor: pointer;
+  }
 
   /* ---------- 全部文章 ---------- */
   .all-list .article-row{grid-template-columns:44px 1fr auto;}
@@ -221,8 +243,9 @@
   @media (max-width:560px){
     .article-row{
       grid-template-columns:36px 1fr;
+      padding:10px 4px;
+      margin: 0 -4px;
     }
-    /* 直接整組隱藏右側容器，解決第三個子元素擠到下方的 Grid 錯位問題 */
     .article-row-right{
       display:none !important;
     }
@@ -287,17 +310,33 @@ function escapeHTML(str) {
 // 容錯率高的日期解析器（避免字串 localeCompare 造成的排序錯亂）
 function parseDateValue(dateStr) {
   if (!dateStr) return 0;
-  // 將常見的斜線或減號格式統一，並轉換為毫秒時間戳
   const cleanStr = dateStr.replace(/-/g, '/');
   const timestamp = Date.parse(cleanStr);
   return isNaN(timestamp) ? 0 : timestamp;
+}
+
+// 實用的網址標準化解析器（修補缺失協定的外部網址，避免 404 導向錯誤）
+function normalizeUrl(urlStr) {
+  if (!urlStr) return '';
+  let trimmed = urlStr.trim();
+  if (!trimmed) return '';
+  
+  // 排除錨點、內部路徑或特殊的通訊協定
+  if (/^(mailto:|tel:|javascript:|#|\/)/i.test(trimmed)) {
+    return trimmed;
+  }
+  
+  // 如果網址沒有包含 http:// 或 https://，則主動為其加上安全的協定頭部
+  if (!/^https?:\/\//i.test(trimmed)) {
+    return 'https://' + trimmed;
+  }
+  return trimmed;
 }
 
 // ================================================================
 // 工具：gviz/tq CSV 抓取與解析
 // ================================================================
 function gvizUrl(sheetName){
-  // 動態加入時間戳記 (Cache Buster)，解決瀏覽器或 CDN 過度快取試算表資料的問題
   const cacheBuster = new Date().getTime();
   return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&t=${cacheBuster}`;
 }
@@ -360,11 +399,10 @@ async function init(){
   let articleRows = [];
   let seriesMeta = {};
 
-  try{
-    // 優化：使用 Promise.all 同時載入「文章」與「系列說明」，提升近一倍的非同步載入效能
+  try {
     const [articlesRes, seriesRes] = await Promise.all([
       fetchSheet(SHEET_ARTICLES),
-      fetchSheet(SHEET_SERIES).catch(() => ({ records: [] })) // 容忍系列說明不存在，拋出錯誤時降級使用 fallback
+      fetchSheet(SHEET_SERIES).catch(() => ({ records: [] }))
     ]);
 
     articleRows = articlesRes.records;
@@ -394,7 +432,11 @@ async function init(){
     const subSeries = pick(r, ['系列','三大面向系列連載']);
     const cover = pick(r, ['封面']);
     const title = pick(r, ['文章標題']);
-    const url = pick(r, ['網址']);
+    
+    // 改善：大舉增加 URL 候選欄位名，完美防呆不同協作者命名的落差
+    const urlRaw = pick(r, ['網址', '連結', 'URL', 'url', 'Link', 'link', '文章連結', '連結網址']);
+    const url = normalizeUrl(urlRaw);
+    
     const oneLiner = pick(r, ['一句話定位']);
     const pubDate = pick(r, ['發佈日']);
     const orderRaw = pick(r, ['排序']);
@@ -408,7 +450,6 @@ async function init(){
       category: SERIES_FALLBACK[mainCategory] ? mainCategory : (mainCategory || ''),
       subSeries,
       order: orderRaw ? Number(orderRaw) : (Number(id) || 9999),
-      // 顯示欄尚未建立時，預設全部顯示；欄位存在時才依 ✓ 判斷
       display: displayRaw === '' ? true : displayRaw === '✓',
       featured: featuredRaw === '✓',
       featuredOrder: featuredOrderRaw ? Number(featuredOrderRaw) : 9999,
@@ -430,14 +471,19 @@ function coverEl(article, color){
   const div = document.createElement('div');
   div.className = 'cover-swatch';
   div.style.background = color;
-  if(article.cover) div.textContent = article.cover; // emoji
+  if(article.cover) div.textContent = article.cover;
   return div;
 }
 
 function articleRowEl(article, color){
-  const el = document.createElement(article.url ? 'a' : 'div');
+  const hasUrl = !!article.url;
+  const el = document.createElement(hasUrl ? 'a' : 'div');
   el.className = 'article-row';
-  if(article.url){ el.href = article.url; el.target = '_blank'; el.rel='noopener'; }
+  if(hasUrl){ 
+    el.href = article.url; 
+    el.target = '_blank'; 
+    el.rel = 'noopener'; 
+  }
 
   const num = document.createElement('div');
   num.className = 'callnum';
@@ -463,7 +509,6 @@ function articleRowEl(article, color){
     main.appendChild(p);
   }
 
-  // 為右側容器補上專屬 class「article-row-right」，配合 CSS 斷點完美隱藏
   const right = document.createElement('div');
   right.className = 'article-row-right';
   const meta = document.createElement('div');
@@ -490,10 +535,10 @@ function render(app, articles, seriesMeta){
     grid.className = 'picks';
     picks.forEach(a => {
       const color = seriesMeta[a.category]?.color || UNSORTED_META.color;
-      const card = document.createElement(a.url ? 'a':'div');
+      const hasUrl = !!a.url;
+      const card = document.createElement(hasUrl ? 'a' : 'div');
       card.className = 'pick-card';
-      if(a.url){ card.href = a.url; card.target='_blank'; card.rel='noopener'; }
-      // 使用 escapeHTML 進行防護性轉義，防範潛在 XSS 攻擊
+      if(hasUrl){ card.href = a.url; card.target = '_blank'; card.rel = 'noopener'; }
       card.innerHTML = `<span class="num" style="color:${color}">${escapeHTML(a.id)}</span><h3>${escapeHTML(a.title)}</h3><p>${escapeHTML(a.oneLiner||'')}</p>`;
       grid.appendChild(card);
     });
@@ -534,7 +579,6 @@ function render(app, articles, seriesMeta){
   app.appendChild(seriesSection);
 
   // ---------- 最新文章（最多 5 篇，僅供告知）----------
-  // 優化：基於時間戳記（Date.parse）正確排序，排除因字串長短或多樣化分隔符造成的 localeCompare 排序錯亂
   const dated = articles.filter(a => a.pubDate).sort((a,b) => parseDateValue(b.pubDate) - parseDateValue(a.pubDate));
   if(dated.length){
     const latest = dated.slice(0, MAX_LATEST);
@@ -543,9 +587,10 @@ function render(app, articles, seriesMeta){
     const list = document.createElement('div');
     list.className = 'latest-list';
     latest.forEach(a => {
-      const row = document.createElement(a.url ? 'a':'div');
+      const hasUrl = !!a.url;
+      const row = document.createElement(hasUrl ? 'a' : 'div');
       row.className = 'latest-row';
-      if(a.url){ row.href=a.url; row.target='_blank'; row.rel='noopener'; }
+      if(hasUrl){ row.href = a.url; row.target = '_blank'; row.rel = 'noopener'; }
       row.innerHTML = `<span class="t">${escapeHTML(a.title)}</span><span class="d">${escapeHTML(a.pubDate)}</span>`;
       list.appendChild(row);
     });
