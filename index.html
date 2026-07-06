@@ -374,11 +374,12 @@ const SHEET_SERIES   = '系列說明';
 const SHEET_THEME    = 'theme';
 const MAX_LATEST = 5;
 
-// 三大分類 fallback
+// 四大分類 fallback
 const SERIES_FALLBACK = {
   '思考': { desc:'理解世界的方法', color:'#3B5BA5', order:1 },
   '實踐': { desc:'把想法變成成果', color:'#3F6B4F', order:2 },
   '職涯': { desc:'成為想成為的人', color:'#7A3B4E', order:3 },
+  '課程': { desc:'從課程現場延伸出的教學紀錄', color:'#8C6A2E', order:4 },
 };
 const UNSORTED_KEY = '尚未分類';
 const UNSORTED_META = { desc:'尚未歸類的文章，之後會補上系列', color:'#8A8478', order:99 };
@@ -561,16 +562,16 @@ async function init(){
   const articles = articleRows.map(r => {
     const id = pick(r, ['編號']);
     const mainCategory = pick(r, ['思考x實踐x職涯','思考×實踐×職涯','類別']);
-    const subSeries = pick(r, ['系列','三大面向系列連載']);
+    const subSeries = pick(r, ['系統','系列','三大面向系列連載']);
     const cover = pick(r, ['封面']);
-    const title = pick(r, ['文章標題']);
+    const title = pick(r, ['文章標題','部落標題']);
     
     // 超大模糊匹配庫，防呆欄位拼寫
-    const urlRaw = pick(r, ['網址', '連結', 'URL', 'url', 'Link', 'link', '文章連結', '連結網址']);
+    const urlRaw = pick(r, ['網址', '部落網址', '連結', 'URL', 'url', 'Link', 'link', '文章連結', '連結網址']);
     const url = normalizeUrl(urlRaw);
     
     const oneLiner = pick(r, ['一句話定位']);
-    const pubDate = pick(r, ['發佈日']);
+    const pubDate = pick(r, ['發佈日','發佈日期']);
     const orderRaw = pick(r, ['排序']);
     const displayRaw = pick(r, ['顯示']);
     const featuredRaw = pick(r, ['推薦閱讀']);
