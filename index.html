@@ -11,7 +11,7 @@
   :root{
     --paper:#F2EFE6;
     --paper-deep:#EAE5D8;
-    --paper-darker:#DFD9C8; /* 新增 hover 使用的深紙色 */
+    --paper-darker:#DFD9C8; /* hover 使用的深紙色 */
     --ink:#242219;
     --ink-soft:#6E675C;
     --ink-faint:#A39C8E;
@@ -114,7 +114,7 @@
     text-decoration:none;
     transition:transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
   }
-  /* 當 pick-card 包含超連結時的 hover 回饋 */
+  /* 當包含連結時的 hover 回饋 */
   a.pick-card:hover {
     transform:translateY(-2px);
     border-color:var(--ink-soft);
@@ -143,17 +143,17 @@
     grid-template-columns:44px 1fr auto;
     gap:16px;
     align-items:center;
-    padding:14px 10px; /* 稍微增加水平內距，讓 hover 背景亮起時更有呼吸感 */
-    margin: 0 -10px;    /* 透過負邊距抵消內距，維持原本的排版對齊線 */
+    padding:14px 10px;
+    margin: 0 -10px;
     border-bottom:1px solid var(--rule-soft);
     text-decoration:none;
     color:inherit;
     border-radius: var(--radius);
-    transition: background-color 0.18s ease, padding-left 0.18s ease;
+    transition: background-color 0.18s ease;
   }
   .article-row:last-child{border-bottom:none;}
   
-  /* 優化：當文章為有效連結時，滑鼠滑入時的優雅反饋 */
+  /* 有效連結時的 hover 效果 */
   a.article-row:hover {
     background-color: var(--paper-deep);
     cursor: pointer;
@@ -208,7 +208,7 @@
   .latest-list{font-size:13px;}
   .latest-row{
     display:flex;justify-content:space-between;gap:12px;
-    padding:8px 8px; /* 增加些微內置寬度以便 hover */
+    padding:8px 8px;
     margin: 0 -8px;
     border-bottom:1px dashed var(--rule-soft);
     text-decoration:none;color:var(--ink-soft);
@@ -226,18 +226,95 @@
 
   /* ---------- 全部文章 ---------- */
   .all-list .article-row{grid-template-columns:44px 1fr auto;}
-  .unsorted-note{
-    font-size:11.5px;color:var(--ink-faint);margin-top:10px;
-  }
 
   footer{
     padding:40px 0 60px;text-align:center;
     font-size:11.5px;color:var(--ink-faint);
   }
+  .footer-links {
+    margin-top: 8px;
+    display: flex;
+    justify-content: center;
+    gap:12px;
+  }
+  .footer-links a {
+    text-decoration: underline;
+    cursor: pointer;
+  }
 
   .state-msg{
     text-align:center;padding:60px 0;color:var(--ink-soft);font-size:13px;
   }
+
+  /* ---------- 診斷助理彈窗樣式 ---------- */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+  .modal-box {
+    background: var(--paper);
+    color: var(--ink);
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    max-width: 650px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    font-size: 13.5px;
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1.5px solid var(--rule);
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+  .modal-header h3 {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 18px;
+  }
+  .close-btn {
+    background: none; border: none; font-size: 20px; cursor: pointer; color: var(--ink-soft);
+  }
+  .diag-section {
+    margin-bottom: 18px;
+  }
+  .diag-title {
+    font-weight: 600; margin-bottom: 6px; color: var(--accent);
+  }
+  .code-block {
+    background: var(--paper-deep);
+    padding: 10px;
+    border-radius: var(--radius);
+    font-family: monospace;
+    font-size: 12px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    border: 1px solid var(--rule-soft);
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #fff;
+  }
+  .badge-success { background: #3F6B4F; }
+  .badge-danger { background: #7A3B4E; }
+  .bullet-list {
+    padding-left: 18px; margin: 6px 0;
+  }
+  .bullet-list li { margin-bottom: 4px; }
 
   /* 行動端斷點樣式優化 */
   @media (max-width:560px){
@@ -269,7 +346,23 @@
 
 <footer class="wrap">
   <div>小樹108．一套持續連載的知識體系　每 108 篇集結成一冊</div>
+  <div class="footer-links">
+    <a id="open-diag-btn">⚙️ 試算表連線診斷助理</a>
+  </div>
 </footer>
+
+<!-- 診斷助理彈跳視窗 -->
+<div class="modal-overlay" id="diag-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>⚙️ 試算表連線診斷助理</h3>
+      <button class="close-btn" id="close-diag-btn">×</button>
+    </div>
+    <div class="modal-body" id="diag-body">
+      正在分析資料結構，請稍候...
+    </div>
+  </div>
+</div>
 
 <script>
 // ================================================================
@@ -281,7 +374,7 @@ const SHEET_SERIES   = '系列說明';
 const SHEET_THEME    = 'theme';
 const MAX_LATEST = 5;
 
-// 三大分類 fallback（系列說明分頁尚未建立前使用；分頁建立後會被覆蓋）
+// 三大分類 fallback
 const SERIES_FALLBACK = {
   '思考': { desc:'理解世界的方法', color:'#3B5BA5', order:1 },
   '實踐': { desc:'把想法變成成果', color:'#3F6B4F', order:2 },
@@ -290,8 +383,19 @@ const SERIES_FALLBACK = {
 const UNSORTED_KEY = '尚未分類';
 const UNSORTED_META = { desc:'尚未歸類的文章，之後會補上系列', color:'#8A8478', order:99 };
 
+// 全域快取，供診斷工具隨時讀取
+let rawDiagnosticData = {
+  sheetId: SHEET_ID,
+  fetchSuccess: false,
+  fetchError: null,
+  rawHeaders: [],
+  rawRecords: [],
+  parsedArticles: [],
+  matchedUrlKey: null
+};
+
 // ================================================================
-// 工具：安全轉義 HTML（防止試算表內容造成的 XSS 攻擊）
+// 工具：安全轉義 HTML
 // ================================================================
 function escapeHTML(str) {
   if (!str) return '';
@@ -307,7 +411,7 @@ function escapeHTML(str) {
   });
 }
 
-// 容錯率高的日期解析器（避免字串 localeCompare 造成的排序錯亂）
+// 容錯率高的日期解析器
 function parseDateValue(dateStr) {
   if (!dateStr) return 0;
   const cleanStr = dateStr.replace(/-/g, '/');
@@ -315,18 +419,16 @@ function parseDateValue(dateStr) {
   return isNaN(timestamp) ? 0 : timestamp;
 }
 
-// 實用的網址標準化解析器（修補缺失協定的外部網址，避免 404 導向錯誤）
+// 實用的網址標準化解析器
 function normalizeUrl(urlStr) {
   if (!urlStr) return '';
   let trimmed = urlStr.trim();
   if (!trimmed) return '';
   
-  // 排除錨點、內部路徑或特殊的通訊協定
   if (/^(mailto:|tel:|javascript:|#|\/)/i.test(trimmed)) {
     return trimmed;
   }
   
-  // 如果網址沒有包含 http:// 或 https://，則主動為其加上安全的協定頭部
   if (!/^https?:\/\//i.test(trimmed)) {
     return 'https://' + trimmed;
   }
@@ -371,7 +473,11 @@ function cleanHeader(h){
 async function fetchSheet(sheetName){
   const res = await fetch(gvizUrl(sheetName));
   if(!res.ok) throw new Error('無法讀取分頁：' + sheetName);
-  const text = await res.text();
+  
+  // 核心修復：徹底過濾掉可能附加在第一欄最前方的 UTF-8 BOM (\ufeff) 隱形字元
+  let text = await res.text();
+  text = text.replace(/^\uFEFF/, '');
+  
   const rows = parseCSV(text);
   if(rows.length === 0) return { headers:[], records:[] };
   const headers = rows[0].map(cleanHeader);
@@ -383,10 +489,29 @@ async function fetchSheet(sheetName){
   return { headers, records };
 }
 
-// 依多個候選欄名取值，容忍欄位尚未建立或改名
+// 超強防呆模糊匹配選取器（忽略欄名的大小寫與前後空格）
 function pick(record, candidates){
+  // 1. 將本列所有欄位名稱整理成「去空白、轉小寫」的對照表
+  const normalizedRecord = {};
+  for (const key in record) {
+    if (record.hasOwnProperty(key)) {
+      const normKey = key.trim().toLowerCase();
+      normalizedRecord[normKey] = record[key];
+    }
+  }
+  
+  // 2. 比對候選名單
   for(const name of candidates){
-    if(record.hasOwnProperty(name) && record[name] !== '') return record[name];
+    const normName = name.trim().toLowerCase();
+    if(normalizedRecord.hasOwnProperty(normName) && normalizedRecord[normName] !== '') {
+      // 順便把成功配對到的原始欄位名稱記錄在診斷器中
+      for (const rawKey in record) {
+        if (rawKey.trim().toLowerCase() === normName) {
+          rawDiagnosticData.matchedUrlKey = rawKey;
+        }
+      }
+      return normalizedRecord[normName];
+    }
   }
   return '';
 }
@@ -406,6 +531,11 @@ async function init(){
     ]);
 
     articleRows = articlesRes.records;
+    
+    // 將原始資料寫入診斷全域變數
+    rawDiagnosticData.fetchSuccess = true;
+    rawDiagnosticData.rawHeaders = articlesRes.headers;
+    rawDiagnosticData.rawRecords = articlesRes.records;
 
     if (seriesRes.records && seriesRes.records.length > 0) {
       seriesRes.records.forEach(r => {
@@ -419,13 +549,15 @@ async function init(){
       });
     }
   } catch(e){
-    app.innerHTML = `<div class="state-msg">文章資料讀取失敗，請確認試算表分享權限（知道連結的人可以檢視）。<br>${escapeHTML(e.message)}</div>`;
+    rawDiagnosticData.fetchSuccess = false;
+    rawDiagnosticData.fetchError = e.message;
+    app.innerHTML = `<div class="state-msg">文章資料讀取失敗，請確認試算表分享權限。<br>${escapeHTML(e.message)}</div>`;
     return;
   }
 
   if(Object.keys(seriesMeta).length === 0) seriesMeta = { ...SERIES_FALLBACK };
 
-  // 整理文章資料（欄名容忍尚未定案 / 尚未新增的欄位）
+  // 整理文章資料
   const articles = articleRows.map(r => {
     const id = pick(r, ['編號']);
     const mainCategory = pick(r, ['思考x實踐x職涯','思考×實踐×職涯','類別']);
@@ -433,7 +565,7 @@ async function init(){
     const cover = pick(r, ['封面']);
     const title = pick(r, ['文章標題']);
     
-    // 改善：大舉增加 URL 候選欄位名，完美防呆不同協作者命名的落差
+    // 超大模糊匹配庫，防呆欄位拼寫
     const urlRaw = pick(r, ['網址', '連結', 'URL', 'url', 'Link', 'link', '文章連結', '連結網址']);
     const url = normalizeUrl(urlRaw);
     
@@ -457,6 +589,9 @@ async function init(){
     };
   }).filter(a => a.display && a.title);
 
+  // 暫存解析後的文章清單供偵錯分析
+  rawDiagnosticData.parsedArticles = articles;
+
   render(app, articles, seriesMeta);
 }
 
@@ -477,6 +612,7 @@ function coverEl(article, color){
 
 function articleRowEl(article, color){
   const hasUrl = !!article.url;
+  // 如果沒有網址，渲染為無 hover 特效的普通 div，有網址則渲染為 a 超連結
   const el = document.createElement(hasUrl ? 'a' : 'div');
   el.className = 'article-row';
   if(hasUrl){ 
@@ -578,7 +714,7 @@ function render(app, articles, seriesMeta){
   });
   app.appendChild(seriesSection);
 
-  // ---------- 最新文章（最多 5 篇，僅供告知）----------
+  // ---------- 最新文章 ----------
   const dated = articles.filter(a => a.pubDate).sort((a,b) => parseDateValue(b.pubDate) - parseDateValue(a.pubDate));
   if(dated.length){
     const latest = dated.slice(0, MAX_LATEST);
@@ -598,7 +734,7 @@ function render(app, articles, seriesMeta){
     app.appendChild(section);
   }
 
-  // ---------- 全部文章（依發佈日排序，保底入口）----------
+  // ---------- 全部文章 ----------
   const allSection = document.createElement('section');
   allSection.innerHTML = `<div class="section-head"><span class="eyebrow">全部文章</span><span class="count">${articles.length} 篇</span></div>`;
   const allList = document.createElement('div');
@@ -609,6 +745,105 @@ function render(app, articles, seriesMeta){
   });
   allSection.appendChild(allList);
   app.appendChild(allSection);
+}
+
+// ================================================================
+// 診斷助理核心邏輯
+// ================================================================
+const modal = document.getElementById('diag-modal');
+const openBtn = document.getElementById('open-diag-btn');
+const closeBtn = document.getElementById('close-diag-btn');
+const diagBody = document.getElementById('diag-body');
+
+openBtn.addEventListener('click', () => {
+  modal.style.display = 'flex';
+  runDiagnostics();
+});
+
+closeBtn.addEventListener('click', () => {
+  modal.style.display = 'none';
+});
+
+window.addEventListener('click', (e) => {
+  if (e.target === modal) modal.style.display = 'none';
+});
+
+function runDiagnostics() {
+  const d = rawDiagnosticData;
+  let html = '';
+
+  // 1. 基本連線狀態
+  html += `<div class="diag-section">`;
+  html += `<div class="diag-title">1. 連線診斷</div>`;
+  if (d.fetchSuccess) {
+    html += `<div>連線狀態：<span class="badge badge-success">正常連線</span></div>`;
+    html += `<div>已從試算表下載 <strong style="color:var(--accent)">${d.rawRecords.length}</strong> 筆原始列資料。</div>`;
+  } else {
+    html += `<div>連線狀態：<span class="badge badge-danger">連線失敗</span></div>`;
+    html += `<div style="color:var(--accent); margin-top:5px;">錯誤訊息：${escapeHTML(d.fetchError || '未知錯誤')}</div>`;
+    html += `<p>💡 請檢查：你的試算表「共用」設定中，是否已開啟「知道連結的人可以檢視」？</p>`;
+  }
+  html += `</div>`;
+
+  if (!d.fetchSuccess) {
+    diagBody.innerHTML = html;
+    return;
+  }
+
+  // 2. 欄位結構偵測
+  html += `<div class="diag-section">`;
+  html += `<div class="diag-title">2. 欄位對接診斷</div>`;
+  html += `<div>試算表「文章」分頁中被偵測到的【原始欄位清單】：</div>`;
+  html += `<div class="code-block" style="margin-top: 5px;">${escapeHTML(JSON.stringify(d.rawHeaders))}</div>`;
+  
+  // 檢驗是否有成功對接網址欄
+  if (d.matchedUrlKey) {
+    html += `<div style="margin-top:8px;">對接狀態：<span class="badge badge-success">成功配對</span> 網頁已成功將試算表中的「<strong>${escapeHTML(d.matchedUrlKey)}</strong>」欄位辨識為網址連結。</div>`;
+  } else {
+    html += `<div style="margin-top:8px;">對接狀態：<span class="badge badge-danger">配對失敗</span> 網頁無法辨識任何網址欄位。</div>`;
+  }
+  html += `</div>`;
+
+  // 3. 前三筆文章網址解析結果
+  html += `<div class="diag-section">`;
+  html += `<div class="diag-title">3. 實際資料解析預覽（前 3 筆）</div>`;
+  
+  const sample = d.parsedArticles.slice(0, 3);
+  if (sample.length === 0) {
+    html += `<div style="color:var(--accent)">無任何有效的顯示文章，請確認試算表中「顯示」欄位是否確實填寫。</div>`;
+  } else {
+    sample.forEach((art, i) => {
+      const rawRec = d.rawRecords[i] || {};
+      const rawUrlValue = d.matchedUrlKey ? rawRec[d.matchedUrlKey] : '(無)';
+      const hasLink = !!art.url;
+
+      html += `<div style="background:var(--paper-deep); padding:8px; border-radius:3px; margin-bottom:8px; border:1px solid var(--rule-soft)">`;
+      html += `<div><strong>標題：</strong>${escapeHTML(art.title)} (編號: ${escapeHTML(art.id)})</div>`;
+      html += `<div><strong>試算表原始值：</strong> <code style="background:rgba(0,0,0,0.05); padding:1px 4px;">"${escapeHTML(rawUrlValue)}"</code></div>`;
+      html += `<div><strong>網頁解析結果：</strong> ${hasLink ? `<a href="${art.url}" target="_blank" style="color:#3B5BA5; text-decoration:underline;">${escapeHTML(art.url)}</a> <span class="badge badge-success">可正常點擊</span>` : `<span class="badge badge-danger">純文字（無法點擊）</span>`}</div>`;
+      
+      // 給予警告指引
+      if (!hasLink) {
+        html += `<div style="color:var(--accent); font-size:12px; margin-top:4px; border-top:1px dashed var(--rule); padding-top:4px;">`;
+        html += `⚠️ 診斷提示：此列的網址值為空。請確保試算表中該儲存格是<strong>直接貼上純文字 URL</strong> (如 https://...)，千萬不要使用 \`=HYPERLINK\` 公式或點擊 Google 的右鍵插入連結！`;
+        html += `</div>`;
+      }
+      html += `</div>`;
+    });
+  }
+  html += `</div>`;
+
+  // 4. 自助修復教學
+  html += `<div class="diag-section" style="border-top:1.5px dashed var(--rule); padding-top:12px;">`;
+  html += `<div class="diag-title">🛠️ 連結修復快速指引</div>`;
+  html += `<ul class="bullet-list">`;
+  html += `<li><strong>做法 A：檢查欄位標題</strong><br>請在 Google 試算表最上方標題列，確保有一欄的名稱完全叫做：<code>網址</code> 或是 <code>連結</code>。</li>`;
+  html += `<li><strong>做法 B：格式務必為「純文字網址」</strong><br>切勿在格子內寫 <code>=HYPERLINK("網址", "標題")</code>，這會導致 API 匯出時網址被濾掉。請在該格「直接貼上」<code>https://...</code> 純網址字串。</li>`;
+  html += `<li><strong>做法 C：不要內嵌連結</strong><br>請不要使用試算表的「插入連結」功能（即在標題文字背後藏超連結），API 同樣無法讀取，必須將網址單獨放一欄。</li>`;
+  html += `</ul>`;
+  html += `</div>`;
+
+  diagBody.innerHTML = html;
 }
 
 init();
