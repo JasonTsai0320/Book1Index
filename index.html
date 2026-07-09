@@ -348,7 +348,15 @@ function escapeHTML(str) {
 // 容錯率高的日期解析器
 function parseDateValue(dateStr) {
   if (!dateStr) return 0;
-  const cleanStr = dateStr.replace(/-/g, '/');
+  const cleanStr = dateStr.trim().replace(/-/g, '/');
+  // 優先處理「YY/MM/DD」或「YYYY/MM/DD」格式（Date.parse 對兩位數年份會直接判讀失敗）
+  const m = cleanStr.match(/^(\d{2,4})\/(\d{1,2})\/(\d{1,2})$/);
+  if (m) {
+    let year = Number(m[1]);
+    if (year < 100) year += 2000;
+    const ts = new Date(year, Number(m[2]) - 1, Number(m[3])).getTime();
+    return isNaN(ts) ? 0 : ts;
+  }
   const timestamp = Date.parse(cleanStr);
   return isNaN(timestamp) ? 0 : timestamp;
 }
