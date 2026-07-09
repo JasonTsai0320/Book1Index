@@ -19,12 +19,14 @@
     --rule-soft:rgba(36,34,25,0.08);
     --accent:#7A3B4E;
     --accent-soft:rgba(122,59,78,0.10);
-    --c-thought:#3B5BA5;
-    --c-thought-soft:rgba(59,91,165,0.10);
-    --c-practice:#3F6B4F;
-    --c-practice-soft:rgba(63,107,79,0.10);
-    --c-career:#7A3B4E;
-    --c-career-soft:rgba(122,59,78,0.10);
+    --c-thought:#3F6B4F;
+    --c-thought-soft:rgba(63,107,79,0.10);
+    --c-practice:#3B5BA5;
+    --c-practice-soft:rgba(59,91,165,0.10);
+    --c-career:#B5651D;
+    --c-career-soft:rgba(181,101,29,0.10);
+    --c-course:#8C6A2E;
+    --c-course-soft:rgba(140,106,46,0.10);
     --c-unsorted:#8A8478;
     --c-unsorted-soft:rgba(138,132,120,0.10);
     --radius:3px;
@@ -98,6 +100,30 @@
   .section-head .count{
     font-size:12px;color:var(--ink-faint);
   }
+
+  /* ---------- 分類導覽色塊 ---------- */
+  .nav-badges{
+    display:flex;flex-wrap:wrap;justify-content:center;gap:12px;
+    margin:32px 0 0;
+  }
+  .nav-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 16px;border-radius:4px;
+    font-family:var(--sans);font-size:13.5px;color:#fff;
+    text-decoration:none;
+    transition:opacity 0.18s ease, transform 0.18s ease;
+  }
+  .nav-badge:hover{opacity:0.88;transform:translateY(-1px);}
+  .nav-badge .deco{
+    width:13px;height:13px;border-radius:2px;flex:none;
+    background:rgba(255,255,255,0.35);
+  }
+  .nav-badge.home{
+    background:transparent;
+    border:1px solid var(--ink);
+    color:var(--ink);
+  }
+  .nav-badge.home:hover{background:var(--paper-deep);}
 
   /* ---------- 推薦閱讀 ---------- */
   .picks{
@@ -231,90 +257,9 @@
     padding:40px 0 60px;text-align:center;
     font-size:11.5px;color:var(--ink-faint);
   }
-  .footer-links {
-    margin-top: 8px;
-    display: flex;
-    justify-content: center;
-    gap:12px;
-  }
-  .footer-links a {
-    text-decoration: underline;
-    cursor: pointer;
-  }
-
   .state-msg{
     text-align:center;padding:60px 0;color:var(--ink-soft);font-size:13px;
   }
-
-  /* ---------- 診斷助理彈窗樣式 ---------- */
-  .modal-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6);
-    display: none;
-    align-items: center; justify-content: center;
-    z-index: 1000;
-    padding: 20px;
-  }
-  .modal-box {
-    background: var(--paper);
-    color: var(--ink);
-    border: 1.5px solid var(--ink);
-    border-radius: 4px;
-    max-width: 650px;
-    width: 100%;
-    max-height: 85vh;
-    overflow-y: auto;
-    padding: 24px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    font-size: 13.5px;
-  }
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1.5px solid var(--rule);
-    padding-bottom: 12px;
-    margin-bottom: 16px;
-  }
-  .modal-header h3 {
-    margin: 0;
-    font-family: var(--serif);
-    font-size: 18px;
-  }
-  .close-btn {
-    background: none; border: none; font-size: 20px; cursor: pointer; color: var(--ink-soft);
-  }
-  .diag-section {
-    margin-bottom: 18px;
-  }
-  .diag-title {
-    font-weight: 600; margin-bottom: 6px; color: var(--accent);
-  }
-  .code-block {
-    background: var(--paper-deep);
-    padding: 10px;
-    border-radius: var(--radius);
-    font-family: monospace;
-    font-size: 12px;
-    overflow-x: auto;
-    white-space: pre-wrap;
-    border: 1px solid var(--rule-soft);
-  }
-  .badge {
-    display: inline-block;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 11px;
-    font-weight: bold;
-    color: #fff;
-  }
-  .badge-success { background: #3F6B4F; }
-  .badge-danger { background: #7A3B4E; }
-  .bullet-list {
-    padding-left: 18px; margin: 6px 0;
-  }
-  .bullet-list li { margin-bottom: 4px; }
 
   /* 行動端斷點樣式優化 */
   @media (max-width:560px){
@@ -326,6 +271,10 @@
     .article-row-right{
       display:none !important;
     }
+    .nav-badge{
+      padding:7px 12px;font-size:12.5px;gap:6px;
+    }
+    .nav-badge .deco{width:11px;height:11px;}
   }
 </style>
 </head>
@@ -345,24 +294,8 @@
 </main>
 
 <footer class="wrap">
-  <div>小樹108．一套持續連載的知識體系　每 108 篇集結成一冊</div>
-  <div class="footer-links">
-    <a id="open-diag-btn">⚙️ 試算表連線診斷助理</a>
-  </div>
+  <div>小樹紮根．知識成林</div>
 </footer>
-
-<!-- 診斷助理彈跳視窗 -->
-<div class="modal-overlay" id="diag-modal">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h3>⚙️ 試算表連線診斷助理</h3>
-      <button class="close-btn" id="close-diag-btn">×</button>
-    </div>
-    <div class="modal-body" id="diag-body">
-      正在分析資料結構，請稍候...
-    </div>
-  </div>
-</div>
 
 <script>
 // ================================================================
@@ -376,24 +309,23 @@ const MAX_LATEST = 5;
 
 // 四大分類 fallback
 const SERIES_FALLBACK = {
-  '思考': { desc:'理解世界的方法', color:'#3B5BA5', order:1 },
-  '實踐': { desc:'把想法變成成果', color:'#3F6B4F', order:2 },
-  '職涯': { desc:'成為想成為的人', color:'#7A3B4E', order:3 },
+  '思考': { desc:'理解世界的方法', color:'#3F6B4F', order:1 },
+  '實踐': { desc:'把想法變成成果', color:'#3B5BA5', order:2 },
+  '職涯': { desc:'成為想成為的人', color:'#B5651D', order:3 },
   '課程': { desc:'從課程現場延伸出的教學紀錄', color:'#8C6A2E', order:4 },
 };
 const UNSORTED_KEY = '尚未分類';
 const UNSORTED_META = { desc:'尚未歸類的文章，之後會補上系列', color:'#8A8478', order:99 };
 
-// 全域快取，供診斷工具隨時讀取
-let rawDiagnosticData = {
-  sheetId: SHEET_ID,
-  fetchSuccess: false,
-  fetchError: null,
-  rawHeaders: [],
-  rawRecords: [],
-  parsedArticles: [],
-  matchedUrlKey: null
-};
+// 導覽色塊固定順序與網址 hash 對應（課程放最後）
+const CATEGORY_ORDER = ['思考','實踐','職涯','課程'];
+const CATEGORY_SLUGS = { '思考':'thought', '實踐':'practice', '職涯':'career', '課程':'course' };
+const SLUG_TO_CATEGORY = Object.fromEntries(Object.entries(CATEGORY_SLUGS).map(([k,v]) => [v,k]));
+
+function getCurrentFilter(){
+  const slug = (location.hash || '').replace('#','').trim();
+  return SLUG_TO_CATEGORY[slug] || null;
+}
 
 // ================================================================
 // 工具：安全轉義 HTML
@@ -505,12 +437,6 @@ function pick(record, candidates){
   for(const name of candidates){
     const normName = name.trim().toLowerCase();
     if(normalizedRecord.hasOwnProperty(normName) && normalizedRecord[normName] !== '') {
-      // 順便把成功配對到的原始欄位名稱記錄在診斷器中
-      for (const rawKey in record) {
-        if (rawKey.trim().toLowerCase() === normName) {
-          rawDiagnosticData.matchedUrlKey = rawKey;
-        }
-      }
       return normalizedRecord[normName];
     }
   }
@@ -532,11 +458,6 @@ async function init(){
     ]);
 
     articleRows = articlesRes.records;
-    
-    // 將原始資料寫入診斷全域變數
-    rawDiagnosticData.fetchSuccess = true;
-    rawDiagnosticData.rawHeaders = articlesRes.headers;
-    rawDiagnosticData.rawRecords = articlesRes.records;
 
     if (seriesRes.records && seriesRes.records.length > 0) {
       seriesRes.records.forEach(r => {
@@ -550,8 +471,6 @@ async function init(){
       });
     }
   } catch(e){
-    rawDiagnosticData.fetchSuccess = false;
-    rawDiagnosticData.fetchError = e.message;
     app.innerHTML = `<div class="state-msg">文章資料讀取失敗，請確認試算表分享權限。<br>${escapeHTML(e.message)}</div>`;
     return;
   }
@@ -590,11 +509,21 @@ async function init(){
     };
   }).filter(a => a.display && a.title);
 
-  // 暫存解析後的文章清單供偵錯分析
-  rawDiagnosticData.parsedArticles = articles;
+  // 保存供 hash 切換時重繪使用，不需重新抓取試算表
+  currentArticles = articles;
+  currentSeriesMeta = seriesMeta;
 
   render(app, articles, seriesMeta);
 }
+
+let currentArticles = null;
+let currentSeriesMeta = null;
+window.addEventListener('hashchange', () => {
+  if(currentArticles){
+    render(document.getElementById('app'), currentArticles, currentSeriesMeta);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+});
 
 function coverEl(article, color){
   if(article.cover && /^https?:\/\//.test(article.cover)){
@@ -660,62 +589,72 @@ function articleRowEl(article, color){
   return el;
 }
 
+// 每個系列區塊內的排序：推薦文章優先（不受排序欄限制，永遠排第1），
+// 其餘依「排序」欄由小到大
+function sortSeriesArticles(list){
+  const featured = list.filter(a => a.featured).sort((a,b)=>a.featuredOrder-b.featuredOrder);
+  const rest = list.filter(a => !a.featured).sort((a,b)=>a.order-b.order);
+  return featured.concat(rest);
+}
+
+function buildSeriesBlock(key, list, meta){
+  const block = document.createElement('div');
+  block.className = 'series-block';
+  block.innerHTML = `
+    <div class="series-head">
+      <span class="dot" style="background:${escapeHTML(meta.color)}"></span>
+      <h2>${escapeHTML(key)}</h2>
+    </div>
+    <div class="series-desc">${escapeHTML(meta.desc || '')}${key===UNSORTED_KEY ? '' : ` · ${list.length} 篇`}</div>
+  `;
+  sortSeriesArticles(list).forEach(a => block.appendChild(articleRowEl(a, meta.color)));
+  return block;
+}
+
 function render(app, articles, seriesMeta){
   app.innerHTML = '';
+  const activeCategory = getCurrentFilter();
 
-  // ---------- 推薦閱讀 ----------
-  const picks = articles.filter(a => a.featured).sort((a,b)=>a.featuredOrder-b.featuredOrder);
-  if(picks.length){
-    const section = document.createElement('section');
-    section.innerHTML = `<div class="section-head"><span class="eyebrow">推薦閱讀</span><span class="count">${picks.length} 篇</span></div>`;
-    const grid = document.createElement('div');
-    grid.className = 'picks';
-    picks.forEach(a => {
-      const color = seriesMeta[a.category]?.color || UNSORTED_META.color;
-      const hasUrl = !!a.url;
-      const card = document.createElement(hasUrl ? 'a' : 'div');
-      card.className = 'pick-card';
-      if(hasUrl){ card.href = a.url; card.target = '_blank'; card.rel = 'noopener'; }
-      card.innerHTML = `<span class="num" style="color:${color}">${escapeHTML(a.id)}</span><h3>${escapeHTML(a.title)}</h3><p>${escapeHTML(a.oneLiner||'')}</p>`;
-      grid.appendChild(card);
-    });
-    section.appendChild(grid);
-    app.appendChild(section);
-  }
-
-  // ---------- 系列（思考/實踐/職涯 + 尚未分類）----------
   const grouped = {};
   articles.forEach(a => {
     const key = a.category || UNSORTED_KEY;
     if(!grouped[key]) grouped[key] = [];
     grouped[key].push(a);
   });
-  const seriesOrder = Object.keys(grouped).sort((a,b)=>{
-    const oa = a===UNSORTED_KEY ? UNSORTED_META.order : (seriesMeta[a]?.order ?? 50);
-    const ob = b===UNSORTED_KEY ? UNSORTED_META.order : (seriesMeta[b]?.order ?? 50);
-    return oa-ob;
-  });
 
-  const seriesSection = document.createElement('section');
-  seriesSection.innerHTML = `<div class="section-head"><span class="eyebrow">系列</span></div>`;
-  seriesOrder.forEach(key => {
-    const meta = key===UNSORTED_KEY ? UNSORTED_META : (seriesMeta[key] || UNSORTED_META);
-    const list = grouped[key].slice().sort((a,b)=>a.order-b.order);
-    const block = document.createElement('div');
-    block.className = 'series-block';
-    block.innerHTML = `
-      <div class="series-head">
-        <span class="dot" style="background:${escapeHTML(meta.color)}"></span>
-        <h2>${escapeHTML(key)}</h2>
-      </div>
-      <div class="series-desc">${escapeHTML(meta.desc || '')}${key===UNSORTED_KEY ? '' : ` · ${list.length} 篇`}</div>
-    `;
-    list.forEach(a => block.appendChild(articleRowEl(a, meta.color)));
-    seriesSection.appendChild(block);
+  // ---------- 分類導覽色塊 ----------
+  const nav = document.createElement('nav');
+  nav.className = 'nav-badges';
+  CATEGORY_ORDER.forEach(key => {
+    const meta = seriesMeta[key] || SERIES_FALLBACK[key];
+    const isActive = activeCategory === key;
+    const badge = document.createElement('a');
+    if(isActive){
+      badge.className = 'nav-badge home';
+      badge.href = '#';
+      badge.textContent = '回首頁';
+    } else {
+      badge.className = 'nav-badge';
+      badge.href = '#' + CATEGORY_SLUGS[key];
+      badge.style.background = meta.color;
+      badge.innerHTML = `<span class="deco"></span>${escapeHTML(key)}`;
+    }
+    nav.appendChild(badge);
   });
-  app.appendChild(seriesSection);
+  app.appendChild(nav);
 
-  // ---------- 最新文章 ----------
+  // ---------- 篩選模式：只顯示單一系列 ----------
+  if(activeCategory){
+    const meta = seriesMeta[activeCategory] || SERIES_FALLBACK[activeCategory];
+    const list = grouped[activeCategory] || [];
+    const section = document.createElement('section');
+    section.innerHTML = `<div class="section-head"><span class="eyebrow">系列</span></div>`;
+    section.appendChild(buildSeriesBlock(activeCategory, list, meta));
+    app.appendChild(section);
+    return;
+  }
+
+  // ---------- 首頁模式：最新文章 ----------
   const dated = articles.filter(a => a.pubDate).sort((a,b) => parseDateValue(b.pubDate) - parseDateValue(a.pubDate));
   if(dated.length){
     const latest = dated.slice(0, MAX_LATEST);
@@ -735,116 +674,18 @@ function render(app, articles, seriesMeta){
     app.appendChild(section);
   }
 
-  // ---------- 全部文章 ----------
-  const allSection = document.createElement('section');
-  allSection.innerHTML = `<div class="section-head"><span class="eyebrow">全部文章</span><span class="count">${articles.length} 篇</span></div>`;
-  const allList = document.createElement('div');
-  allList.className = 'all-list';
-  dated.concat(articles.filter(a => !a.pubDate)).forEach(a => {
-    const color = seriesMeta[a.category]?.color || UNSORTED_META.color;
-    allList.appendChild(articleRowEl(a, color));
+  // ---------- 首頁模式：系列（固定順序：思考/實踐/職涯/課程 + 尚未分類）----------
+  const seriesSection = document.createElement('section');
+  seriesSection.innerHTML = `<div class="section-head"><span class="eyebrow">系列</span></div>`;
+  CATEGORY_ORDER.forEach(key => {
+    if(!grouped[key]) return;
+    const meta = seriesMeta[key] || SERIES_FALLBACK[key];
+    seriesSection.appendChild(buildSeriesBlock(key, grouped[key], meta));
   });
-  allSection.appendChild(allList);
-  app.appendChild(allSection);
-}
-
-// ================================================================
-// 診斷助理核心邏輯
-// ================================================================
-const modal = document.getElementById('diag-modal');
-const openBtn = document.getElementById('open-diag-btn');
-const closeBtn = document.getElementById('close-diag-btn');
-const diagBody = document.getElementById('diag-body');
-
-openBtn.addEventListener('click', () => {
-  modal.style.display = 'flex';
-  runDiagnostics();
-});
-
-closeBtn.addEventListener('click', () => {
-  modal.style.display = 'none';
-});
-
-window.addEventListener('click', (e) => {
-  if (e.target === modal) modal.style.display = 'none';
-});
-
-function runDiagnostics() {
-  const d = rawDiagnosticData;
-  let html = '';
-
-  // 1. 基本連線狀態
-  html += `<div class="diag-section">`;
-  html += `<div class="diag-title">1. 連線診斷</div>`;
-  if (d.fetchSuccess) {
-    html += `<div>連線狀態：<span class="badge badge-success">正常連線</span></div>`;
-    html += `<div>已從試算表下載 <strong style="color:var(--accent)">${d.rawRecords.length}</strong> 筆原始列資料。</div>`;
-  } else {
-    html += `<div>連線狀態：<span class="badge badge-danger">連線失敗</span></div>`;
-    html += `<div style="color:var(--accent); margin-top:5px;">錯誤訊息：${escapeHTML(d.fetchError || '未知錯誤')}</div>`;
-    html += `<p>💡 請檢查：你的試算表「共用」設定中，是否已開啟「知道連結的人可以檢視」？</p>`;
+  if(grouped[UNSORTED_KEY]){
+    seriesSection.appendChild(buildSeriesBlock(UNSORTED_KEY, grouped[UNSORTED_KEY], UNSORTED_META));
   }
-  html += `</div>`;
-
-  if (!d.fetchSuccess) {
-    diagBody.innerHTML = html;
-    return;
-  }
-
-  // 2. 欄位結構偵測
-  html += `<div class="diag-section">`;
-  html += `<div class="diag-title">2. 欄位對接診斷</div>`;
-  html += `<div>試算表「文章」分頁中被偵測到的【原始欄位清單】：</div>`;
-  html += `<div class="code-block" style="margin-top: 5px;">${escapeHTML(JSON.stringify(d.rawHeaders))}</div>`;
-  
-  // 檢驗是否有成功對接網址欄
-  if (d.matchedUrlKey) {
-    html += `<div style="margin-top:8px;">對接狀態：<span class="badge badge-success">成功配對</span> 網頁已成功將試算表中的「<strong>${escapeHTML(d.matchedUrlKey)}</strong>」欄位辨識為網址連結。</div>`;
-  } else {
-    html += `<div style="margin-top:8px;">對接狀態：<span class="badge badge-danger">配對失敗</span> 網頁無法辨識任何網址欄位。</div>`;
-  }
-  html += `</div>`;
-
-  // 3. 前三筆文章網址解析結果
-  html += `<div class="diag-section">`;
-  html += `<div class="diag-title">3. 實際資料解析預覽（前 3 筆）</div>`;
-  
-  const sample = d.parsedArticles.slice(0, 3);
-  if (sample.length === 0) {
-    html += `<div style="color:var(--accent)">無任何有效的顯示文章，請確認試算表中「顯示」欄位是否確實填寫。</div>`;
-  } else {
-    sample.forEach((art, i) => {
-      const rawRec = d.rawRecords[i] || {};
-      const rawUrlValue = d.matchedUrlKey ? rawRec[d.matchedUrlKey] : '(無)';
-      const hasLink = !!art.url;
-
-      html += `<div style="background:var(--paper-deep); padding:8px; border-radius:3px; margin-bottom:8px; border:1px solid var(--rule-soft)">`;
-      html += `<div><strong>標題：</strong>${escapeHTML(art.title)} (編號: ${escapeHTML(art.id)})</div>`;
-      html += `<div><strong>試算表原始值：</strong> <code style="background:rgba(0,0,0,0.05); padding:1px 4px;">"${escapeHTML(rawUrlValue)}"</code></div>`;
-      html += `<div><strong>網頁解析結果：</strong> ${hasLink ? `<a href="${art.url}" target="_blank" style="color:#3B5BA5; text-decoration:underline;">${escapeHTML(art.url)}</a> <span class="badge badge-success">可正常點擊</span>` : `<span class="badge badge-danger">純文字（無法點擊）</span>`}</div>`;
-      
-      // 給予警告指引
-      if (!hasLink) {
-        html += `<div style="color:var(--accent); font-size:12px; margin-top:4px; border-top:1px dashed var(--rule); padding-top:4px;">`;
-        html += `⚠️ 診斷提示：此列的網址值為空。請確保試算表中該儲存格是<strong>直接貼上純文字 URL</strong> (如 https://...)，千萬不要使用 \`=HYPERLINK\` 公式或點擊 Google 的右鍵插入連結！`;
-        html += `</div>`;
-      }
-      html += `</div>`;
-    });
-  }
-  html += `</div>`;
-
-  // 4. 自助修復教學
-  html += `<div class="diag-section" style="border-top:1.5px dashed var(--rule); padding-top:12px;">`;
-  html += `<div class="diag-title">🛠️ 連結修復快速指引</div>`;
-  html += `<ul class="bullet-list">`;
-  html += `<li><strong>做法 A：檢查欄位標題</strong><br>請在 Google 試算表最上方標題列，確保有一欄的名稱完全叫做：<code>網址</code> 或是 <code>連結</code>。</li>`;
-  html += `<li><strong>做法 B：格式務必為「純文字網址」</strong><br>切勿在格子內寫 <code>=HYPERLINK("網址", "標題")</code>，這會導致 API 匯出時網址被濾掉。請在該格「直接貼上」<code>https://...</code> 純網址字串。</li>`;
-  html += `<li><strong>做法 C：不要內嵌連結</strong><br>請不要使用試算表的「插入連結」功能（即在標題文字背後藏超連結），API 同樣無法讀取，必須將網址單獨放一欄。</li>`;
-  html += `</ul>`;
-  html += `</div>`;
-
-  diagBody.innerHTML = html;
+  app.appendChild(seriesSection);
 }
 
 init();
