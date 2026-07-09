@@ -48,7 +48,7 @@
 
   /* ---------- Header ---------- */
   header.brand{
-    padding:72px 0 40px;
+    padding:72px 0 24px;
     text-align:center;
     position:relative;
   }
@@ -103,20 +103,19 @@
 
   /* ---------- 分類導覽色塊 ---------- */
   .nav-badges{
-    display:flex;flex-wrap:wrap;justify-content:center;gap:12px;
-    margin:32px 0 0;
+    display:flex;flex-wrap:wrap;justify-content:center;gap:10px;
+    margin:8px 0 0;
   }
   .nav-badge{
-    display:inline-flex;align-items:center;gap:8px;
-    padding:8px 16px;border-radius:4px;
-    font-family:var(--sans);font-size:13.5px;color:#fff;
+    display:inline-flex;align-items:center;gap:7px;
+    padding:6px 14px;border-radius:4px;
+    font-family:var(--sans);font-size:13px;font-weight:500;
     text-decoration:none;
     transition:opacity 0.18s ease, transform 0.18s ease;
   }
-  .nav-badge:hover{opacity:0.88;transform:translateY(-1px);}
+  .nav-badge:hover{opacity:0.78;transform:translateY(-1px);}
   .nav-badge .deco{
-    width:13px;height:13px;border-radius:2px;flex:none;
-    background:rgba(255,255,255,0.35);
+    width:11px;height:11px;border-radius:2px;flex:none;
   }
   .nav-badge.home{
     background:transparent;
@@ -124,6 +123,8 @@
     color:var(--ink);
   }
   .nav-badge.home:hover{background:var(--paper-deep);}
+
+  .nav-badges + section{padding-top:28px;}
 
   /* ---------- 推薦閱讀 ---------- */
   .picks{
@@ -589,6 +590,15 @@ function articleRowEl(article, color){
   return el;
 }
 
+// 十六進位色碼轉 rgba（供淡色底徽章使用）
+function hexToRgba(hex, alpha){
+  const clean = hex.replace('#','');
+  const full = clean.length === 3 ? clean.split('').map(c => c+c).join('') : clean;
+  const num = parseInt(full, 16);
+  const r = (num >> 16) & 255, g = (num >> 8) & 255, b = num & 255;
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
 // 每個系列區塊內的排序：推薦文章優先（不受排序欄限制，永遠排第1），
 // 其餘依「排序」欄由小到大
 function sortSeriesArticles(list){
@@ -636,8 +646,10 @@ function render(app, articles, seriesMeta){
     } else {
       badge.className = 'nav-badge';
       badge.href = '#' + CATEGORY_SLUGS[key];
-      badge.style.background = meta.color;
-      badge.innerHTML = `<span class="deco"></span>${escapeHTML(key)}`;
+      badge.style.background = hexToRgba(meta.color, 0.22);
+      badge.style.border = `1px solid ${hexToRgba(meta.color, 0.55)}`;
+      badge.style.color = meta.color;
+      badge.innerHTML = `<span class="deco" style="background:${meta.color}"></span>${escapeHTML(key)}`;
     }
     nav.appendChild(badge);
   });
