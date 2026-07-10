@@ -245,6 +245,11 @@
   .latest-row:last-child{border-bottom:none;}
   .latest-row .t{color:var(--ink);}
   .latest-row .d{flex:none;color:var(--ink-faint);font-size:11px;}
+  .latest-row .d.gold{color:#C9A227;font-weight:600;}
+  .latest-row .gold-dot{
+    display:inline-block;width:7px;height:7px;border-radius:50%;
+    background:#C9A227;margin-right:7px;vertical-align:middle;
+  }
   
   a.latest-row:hover {
     background-color: var(--paper-deep);
@@ -682,12 +687,13 @@ function render(app, articles, seriesMeta){
     section.innerHTML = `<div class="section-head"><span class="eyebrow">最新文章</span></div>`;
     const list = document.createElement('div');
     list.className = 'latest-list';
-    latest.forEach(a => {
+    latest.forEach((a, idx) => {
       const hasUrl = !!a.url;
       const row = document.createElement(hasUrl ? 'a' : 'div');
       row.className = 'latest-row';
       if(hasUrl){ row.href = a.url; row.target = '_blank'; row.rel = 'noopener'; }
-      row.innerHTML = `<span class="t">${escapeHTML(a.title)}</span><span class="d">${escapeHTML(a.pubDate)}</span>`;
+      const dateClass = idx === 0 ? 'd gold' : 'd';
+      row.innerHTML = `<span class="t"><span class="gold-dot"></span>${escapeHTML(a.title)}</span><span class="${dateClass}">${escapeHTML(a.pubDate)}</span>`;
       list.appendChild(row);
     });
     section.appendChild(list);
