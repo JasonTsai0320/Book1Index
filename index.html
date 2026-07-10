@@ -250,6 +250,10 @@
     display:inline-block;width:7px;height:7px;border-radius:50%;
     background:#C9A227;margin-right:7px;vertical-align:middle;
   }
+  .latest-row .gray-dot{
+    display:inline-block;width:7px;height:7px;border-radius:50%;
+    background:var(--ink-faint);margin-right:7px;vertical-align:middle;
+  }
   
   a.latest-row:hover {
     background-color: var(--paper-deep);
@@ -693,7 +697,8 @@ function render(app, articles, seriesMeta){
       row.className = 'latest-row';
       if(hasUrl){ row.href = a.url; row.target = '_blank'; row.rel = 'noopener'; }
       const dateClass = idx === 0 ? 'd gold' : 'd';
-      row.innerHTML = `<span class="t"><span class="gold-dot"></span>${escapeHTML(a.title)}</span><span class="${dateClass}">${escapeHTML(a.pubDate)}</span>`;
+      const dotClass = idx === 0 ? 'gold-dot' : 'gray-dot';
+      row.innerHTML = `<span class="t"><span class="${dotClass}"></span>${escapeHTML(a.title)}</span><span class="${dateClass}">${escapeHTML(a.pubDate)}</span>`;
       list.appendChild(row);
     });
     section.appendChild(list);
