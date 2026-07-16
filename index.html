@@ -48,7 +48,7 @@
 
   /* ---------- Header ---------- */
   header.brand{
-    padding:72px 0 24px;
+    padding:72px 0 16px;
     text-align:center;
     position:relative;
   }
@@ -104,7 +104,7 @@
   /* ---------- 分類導覽色塊 ---------- */
   .nav-badges{
     display:flex;flex-wrap:wrap;justify-content:center;gap:10px;
-    margin:8px 0 0;
+    margin:14px 0 0;
   }
   .nav-badge{
     display:inline-flex;align-items:center;gap:7px;
@@ -124,24 +124,25 @@
   }
   .nav-badge.home:hover{background:var(--paper-deep);}
 
-  .nav-badges + section{padding-top:28px;}
+  .nav-badges + section{padding-top:28px;border-top:1px solid var(--rule-soft);}
 
   /* ---------- 我想要...（需求導向入口）---------- */
   .want-entry{
     display:flex;flex-direction:column;align-items:center;gap:6px;
-    margin:16px auto 0;text-decoration:none;width:fit-content;
+    margin:10px auto 0;text-decoration:none;width:fit-content;
     cursor:pointer;
   }
   .want-circle{
-    width:56px;height:56px;border-radius:50%;
+    width:46px;height:46px;border-radius:50%;
     border:1px solid rgba(201,162,39,0.7);
     background:rgba(201,162,39,0.14);
     display:flex;align-items:center;justify-content:center;
     transition:transform 0.18s ease, background-color 0.18s ease;
   }
+  .want-circle svg{width:18px;height:18px;}
   .want-entry:hover .want-circle{background:rgba(201,162,39,0.22);transform:translateY(-1px);}
   .want-label{
-    font-family:var(--sans);font-size:13px;font-weight:600;color:#C9A227;
+    font-family:var(--sans);font-size:12px;font-weight:600;color:#C9A227;
   }
   .want-back{
     display:block;text-align:center;width:fit-content;
@@ -169,29 +170,6 @@
   .want-item .dot{width:9px;height:9px;border-radius:50%;flex:none;}
   .want-item.active{font-weight:700;cursor:default;}
   .want-item.active:hover{opacity:1;}
-
-  /* ---------- 推薦閱讀 ---------- */
-  .picks{
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(220px,1fr));
-    gap:20px;
-  }
-  .pick-card{
-    background:var(--paper-deep);
-    border:1px solid var(--rule);
-    border-radius:var(--radius);
-    padding:18px;
-    display:flex;flex-direction:column;gap:8px;
-    text-decoration:none;
-    transition:transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
-  }
-  /* 當包含連結時的 hover 回饋 */
-  a.pick-card:hover {
-    transform:translateY(-2px);
-    border-color:var(--ink-soft);
-    background-color: var(--paper-darker);
-    cursor: pointer;
-  }
 
   /* ---------- 系列（思考/實踐/職涯） ---------- */
   .series-block{margin-bottom:44px;}
@@ -287,25 +265,23 @@
     transition: background-color 0.18s ease;
   }
   .latest-row:last-child{border-bottom:none;}
-  .latest-row .t{color:var(--ink);}
+  .latest-row .t{display:flex;align-items:flex-start;gap:7px;color:var(--ink);min-width:0;}
+  .latest-row .t .title-text{flex:1;min-width:0;}
   .latest-row .d{flex:none;color:var(--ink-faint);font-size:11px;}
   .latest-row .d.gold{color:#C9A227;font-weight:600;}
   .latest-row .gold-dot{
     display:inline-block;width:7px;height:7px;border-radius:50%;
-    background:#C9A227;margin-right:7px;vertical-align:middle;
+    background:#C9A227;flex:none;margin-top:6px;
   }
   .latest-row .gray-dot{
     display:inline-block;width:7px;height:7px;border-radius:50%;
-    background:var(--ink-faint);margin-right:7px;vertical-align:middle;
+    background:var(--ink-faint);flex:none;margin-top:6px;
   }
   
   a.latest-row:hover {
     background-color: var(--paper-deep);
     cursor: pointer;
   }
-
-  /* ---------- 全部文章 ---------- */
-  .all-list .article-row{grid-template-columns:44px 1fr auto;}
 
   footer{
     padding:40px 0 60px;text-align:center;
@@ -357,6 +333,9 @@
       cursor:pointer;
     }
     .share-btn:active{background:var(--paper-deep);}
+    #app{
+      padding-bottom:90px;
+    }
   }
 </style>
 </head>
@@ -397,7 +376,6 @@
 const SHEET_ID = '1MKcQipyOEEXFbLwDXd7Vo0NkJP-k7bOnCwshnHAbgug';
 const SHEET_ARTICLES = '文章';
 const SHEET_SERIES   = '系列說明';
-const SHEET_THEME    = 'theme';
 const MAX_LATEST = 3;
 
 // 四大分類 fallback
@@ -432,7 +410,6 @@ const NEED_SLUGS = {
   '做職涯規劃':'want-careerplan',
 };
 const SLUG_TO_NEED = Object.fromEntries(Object.entries(NEED_SLUGS).map(([k,v]) => [v,k]));
-const GOLD = '#C9A227';
 
 // 統一解析目前網址 hash，決定畫面模式
 function getRoute(){
@@ -648,7 +625,17 @@ let currentSeriesMeta = null;
 window.addEventListener('hashchange', () => {
   if(currentArticles){
     render(document.getElementById('app'), currentArticles, currentSeriesMeta);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const route = getRoute();
+    if(route.mode === 'want-filter'){
+      const target = document.getElementById('want-results');
+      if(target){
+        target.scrollIntoView({ behavior:'smooth', block:'start' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 });
 
@@ -785,6 +772,7 @@ function renderWantMode(app, articles, seriesMeta, route){
   if(route.mode === 'want-filter'){
     const list = articles.filter(a => a.needTags.includes(route.need));
     const section = document.createElement('section');
+    section.id = 'want-results';
     section.innerHTML = `<div class="section-head"><span class="eyebrow">我想${escapeHTML(route.need)}</span>${list.length ? ` <span class="count">${list.length} 篇</span>` : ''}</div>`;
     if(list.length === 0){
       const empty = document.createElement('div');
@@ -868,7 +856,7 @@ function render(app, articles, seriesMeta){
       if(hasUrl){ row.href = a.url; row.target = '_blank'; row.rel = 'noopener'; }
       const dateClass = idx === 0 ? 'd gold' : 'd';
       const dotClass = idx === 0 ? 'gold-dot' : 'gray-dot';
-      row.innerHTML = `<span class="t"><span class="${dotClass}"></span>${escapeHTML(a.title)}</span><span class="${dateClass}">${escapeHTML(a.pubDate)}</span>`;
+      row.innerHTML = `<span class="t"><span class="${dotClass}"></span><span class="title-text">${escapeHTML(a.title)}</span></span><span class="${dateClass}">${escapeHTML(a.pubDate)}</span>`;
       list.appendChild(row);
     });
     section.appendChild(list);
