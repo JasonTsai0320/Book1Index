@@ -126,6 +126,50 @@
 
   .nav-badges + section{padding-top:28px;}
 
+  /* ---------- 我想要...（需求導向入口）---------- */
+  .want-entry{
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    margin:16px auto 0;text-decoration:none;width:fit-content;
+    cursor:pointer;
+  }
+  .want-circle{
+    width:56px;height:56px;border-radius:50%;
+    border:1px solid rgba(201,162,39,0.7);
+    background:rgba(201,162,39,0.14);
+    display:flex;align-items:center;justify-content:center;
+    transition:transform 0.18s ease, background-color 0.18s ease;
+  }
+  .want-entry:hover .want-circle{background:rgba(201,162,39,0.22);transform:translateY(-1px);}
+  .want-label{
+    font-family:var(--sans);font-size:13px;font-weight:600;color:#C9A227;
+  }
+  .want-back{
+    display:block;text-align:center;width:fit-content;
+    font-family:var(--sans);font-size:13px;color:var(--ink);
+    text-decoration:none;margin:16px auto 0;
+    padding:6px 14px;border:1px solid var(--ink);border-radius:4px;
+  }
+  .want-back:hover{background:var(--paper-deep);}
+  .want-panel{
+    max-width:420px;margin:20px auto 0;
+    background:rgba(201,162,39,0.06);
+    border:1px solid rgba(201,162,39,0.18);
+    border-radius:8px;padding:4px 18px;
+  }
+  .want-item{
+    display:flex;align-items:center;gap:10px;
+    padding:13px 4px;
+    border-bottom:1px dashed var(--rule-soft);
+    text-decoration:none;color:var(--ink);
+    font-size:14.5px;
+    transition:opacity 0.15s ease;
+  }
+  .want-item:last-child{border-bottom:none;}
+  .want-item:hover{opacity:0.68;}
+  .want-item .dot{width:9px;height:9px;border-radius:50%;flex:none;}
+  .want-item.active{font-weight:700;cursor:default;}
+  .want-item.active:hover{opacity:1;}
+
   /* ---------- 推薦閱讀 ---------- */
   .picks{
     display:grid;
@@ -354,7 +398,7 @@ const SHEET_ID = '1MKcQipyOEEXFbLwDXd7Vo0NkJP-k7bOnCwshnHAbgug';
 const SHEET_ARTICLES = '文章';
 const SHEET_SERIES   = '系列說明';
 const SHEET_THEME    = 'theme';
-const MAX_LATEST = 5;
+const MAX_LATEST = 3;
 
 // 四大分類 fallback
 const SERIES_FALLBACK = {
@@ -371,9 +415,33 @@ const CATEGORY_ORDER = ['思考','實踐','職涯','課程'];
 const CATEGORY_SLUGS = { '思考':'thought', '實踐':'practice', '職涯':'career', '課程':'course' };
 const SLUG_TO_CATEGORY = Object.fromEntries(Object.entries(CATEGORY_SLUGS).map(([k,v]) => [v,k]));
 
-function getCurrentFilter(){
+// 「我想要...」需求導向清單：固定順序、對應的父分類色（沿用該分類色，不另開新色）
+const NEED_ORDER = ['學心智圖','提升AI能力','建立工作流程','整理知識','做職涯規劃'];
+const NEED_PARENT_CATEGORY = {
+  '學心智圖':'思考',
+  '提升AI能力':'實踐',
+  '建立工作流程':'實踐',
+  '整理知識':'思考',
+  '做職涯規劃':'職涯',
+};
+const NEED_SLUGS = {
+  '學心智圖':'want-mindmap',
+  '提升AI能力':'want-ai',
+  '建立工作流程':'want-workflow',
+  '整理知識':'want-knowledge',
+  '做職涯規劃':'want-careerplan',
+};
+const SLUG_TO_NEED = Object.fromEntries(Object.entries(NEED_SLUGS).map(([k,v]) => [v,k]));
+const GOLD = '#C9A227';
+
+// 統一解析目前網址 hash，決定畫面模式
+function getRoute(){
   const slug = (location.hash || '').replace('#','').trim();
-  return SLUG_TO_CATEGORY[slug] || null;
+  if(!slug) return { mode:'home' };
+  if(slug === 'want') return { mode:'want-list' };
+  if(SLUG_TO_NEED[slug]) return { mode:'want-filter', need: SLUG_TO_NEED[slug] };
+  if(SLUG_TO_CATEGORY[slug]) return { mode:'category-filter', category: SLUG_TO_CATEGORY[slug] };
+  return { mode:'home' };
 }
 
 // ================================================================
@@ -553,6 +621,7 @@ async function init(){
     const featuredRaw = pick(r, ['推薦閱讀']);
     const featuredOrderRaw = pick(r, ['推薦順序']);
     const subTagsRaw = pick(r, ['副標籤']);
+    const needTagsRaw = pick(r, ['需求標籤']);
 
     return {
       id, title, url, oneLiner, pubDate, cover,
@@ -563,6 +632,7 @@ async function init(){
       featured: featuredRaw === '✓',
       featuredOrder: featuredOrderRaw ? Number(featuredOrderRaw) : 9999,
       subTags: subTagsRaw ? subTagsRaw.split(/[,，]/).map(s=>s.trim()).filter(Boolean) : [],
+      needTags: needTagsRaw ? needTagsRaw.split(/[、,，]/).map(s=>s.trim()).filter(Boolean) : [],
     };
   }).filter(a => a.display && a.title);
 
@@ -677,9 +747,68 @@ function buildSeriesBlock(key, list, meta){
   return block;
 }
 
+const COMPASS_SVG = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polygon points="14.5,9.5 10.5,10.5 9.5,14.5 13.5,13.5" fill="rgba(201,162,39,0.25)"></polygon></svg>`;
+
+function categoryColor(catKey, seriesMeta){
+  const meta = seriesMeta[catKey] || SERIES_FALLBACK[catKey];
+  return meta ? meta.color : UNSORTED_META.color;
+}
+
+function buildWantEntry(){
+  const entry = document.createElement('a');
+  entry.className = 'want-entry';
+  entry.href = '#want';
+  entry.innerHTML = `<span class="want-circle">${COMPASS_SVG}</span><span class="want-label">我想要...</span>`;
+  return entry;
+}
+
+function renderWantMode(app, articles, seriesMeta, route){
+  const back = document.createElement('a');
+  back.className = 'want-back';
+  back.href = '#';
+  back.textContent = '回首頁';
+  app.appendChild(back);
+
+  const panel = document.createElement('div');
+  panel.className = 'want-panel';
+  NEED_ORDER.forEach(need => {
+    const color = categoryColor(NEED_PARENT_CATEGORY[need], seriesMeta);
+    const isActive = route.mode === 'want-filter' && route.need === need;
+    const row = document.createElement(isActive ? 'div' : 'a');
+    row.className = 'want-item' + (isActive ? ' active' : '');
+    if(!isActive) row.href = '#' + NEED_SLUGS[need];
+    row.innerHTML = `<span class="dot" style="background:${color}"></span><span>我想${escapeHTML(need)}</span>`;
+    panel.appendChild(row);
+  });
+  app.appendChild(panel);
+
+  if(route.mode === 'want-filter'){
+    const list = articles.filter(a => a.needTags.includes(route.need));
+    const section = document.createElement('section');
+    section.innerHTML = `<div class="section-head"><span class="eyebrow">我想${escapeHTML(route.need)}</span>${list.length ? ` <span class="count">${list.length} 篇</span>` : ''}</div>`;
+    if(list.length === 0){
+      const empty = document.createElement('div');
+      empty.className = 'state-msg';
+      empty.textContent = '目前還沒有符合這個需求的文章。';
+      section.appendChild(empty);
+    } else {
+      const color = categoryColor(NEED_PARENT_CATEGORY[route.need], seriesMeta);
+      sortSeriesArticles(list).forEach(a => section.appendChild(articleRowEl(a, color)));
+    }
+    app.appendChild(section);
+  }
+}
+
 function render(app, articles, seriesMeta){
   app.innerHTML = '';
-  const activeCategory = getCurrentFilter();
+  const route = getRoute();
+
+  if(route.mode === 'want-list' || route.mode === 'want-filter'){
+    renderWantMode(app, articles, seriesMeta, route);
+    return;
+  }
+
+  app.appendChild(buildWantEntry());
 
   const grouped = {};
   articles.forEach(a => {
@@ -687,6 +816,8 @@ function render(app, articles, seriesMeta){
     if(!grouped[key]) grouped[key] = [];
     grouped[key].push(a);
   });
+
+  const activeCategory = route.mode === 'category-filter' ? route.category : null;
 
   // ---------- 分類導覽色塊 ----------
   const nav = document.createElement('nav');
